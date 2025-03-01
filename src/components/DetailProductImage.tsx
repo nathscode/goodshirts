@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 import { ZoomIn } from "lucide-react";
 import React, { useState } from "react";
 import ReactImageMagnifier from "simple-image-magnifier/react";

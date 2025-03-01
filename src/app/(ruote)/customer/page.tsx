@@ -1,5 +1,5 @@
-import CustomerSidebar from "@/components/CustomerSidebar";
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import CustomerSidebar from "@/src/components/CustomerSidebar";
+import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
 
 type Props = {};
 

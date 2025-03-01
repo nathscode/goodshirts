@@ -1,6 +1,7 @@
-import OrderReviewCard from "@/components/card/OrderReviewCard";
-import BackButton from "@/components/common/BackButton";
+import OrderReviewCard from "@/src/components/card/OrderReviewCard";
+import BackButton from "@/src/components/common/BackButton";
 import React from "react";
+import ReviewClient from "./ReviewClient";
 
 type Props = {};
 
@@ -15,7 +16,7 @@ const CustomerReviewPage = (props: Props) => {
 					<h1 className="text-xl font-medium">Pending Reviews</h1>
 				</div>
 				<div className="flex flex-col my-4">
-					<OrderReviewCard />
+					<ReviewClient />
 				</div>
 			</div>
 		</div>

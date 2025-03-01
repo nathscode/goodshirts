@@ -27,7 +27,7 @@ const StarRatingButton = ({ rating, onRating, onHover }: Props) => {
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0  0  24  24"
 							fill="currentColor"
-							className={`h-4 w-4 hover:cursor-pointer ${
+							className={`h-7 w-7 hover:cursor-pointer ${
 								ratingValue <= (hover || rating)
 									? "fill-[#F9AB04] text-[#F9AB04]"
 									: "fill-gray-400 text-gray-400"

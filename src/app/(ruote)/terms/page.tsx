@@ -1,4 +1,4 @@
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
 import React from "react";
 
 type Props = {};

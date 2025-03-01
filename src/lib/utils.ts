@@ -1,9 +1,23 @@
+import crypto from "crypto";
 import { clsx, type ClassValue } from "clsx";
 import { Metadata } from "next";
 import { twMerge } from "tailwind-merge";
+import Compressor from "compressorjs";
+import { SKUGenerator } from "./backend/generate-sku";
+import { parse, format, parseISO } from "date-fns";
+import { ReviewType } from "../db/schema";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
+}
+export function formatDate(dateString: string): string {
+	const date = parseISO(dateString);
+	return format(date, "dd/MM/yyyy");
+}
+
+export function formatDayDate(dateString: string): string {
+	const date = parseISO(dateString);
+	return format(date, "EEEE, dd-MM-yyyy");
 }
 export function formatCurrency(
 	price: number | string,
@@ -32,7 +46,7 @@ export function formatCurrency(
 export function constructMetadata({
 	title = "AfricaGoodShirts - Where luxury speaks",
 	description = "AfricaGoodShirts get affordable luxury men clothings",
-	image = "/images/summary_logo.png",
+	image = "/images/summary_logo.jpg",
 	icons = "/src/app/favicon.ico",
 	noIndex = false,
 }: {
@@ -92,4 +106,160 @@ export function abbreviateMetrics(num: number): string | number {
 	return item
 		? (num / item.value).toFixed(2).replace(rx, "$1") + item.symbol
 		: "0";
+}
+
+export function formatNumberWithCommas(num: number): string {
+	return num.toLocaleString("en-US");
+}
+export function normalizeEmail(email: string): string {
+	return email.trim().toLowerCase();
+}
+
+export function trimAndLowercase(inputString: string): string {
+	return inputString.trim().toLowerCase();
+}
+export function trimAndUppercase(inputString: string): string {
+	return inputString.trim().toUpperCase();
+}
+
+export function handlerNativeResponse(data: any, status: number) {
+	return new Response(JSON.stringify(data), {
+		status,
+		headers: { "Content-Type": "application/json" },
+	});
+}
+
+export function isCustomError(error: any): error is CustomError {
+	return (error as CustomError).code !== undefined;
+}
+
+export class CustomError extends Error {
+	constructor(
+		public code: number,
+		message: string
+	) {
+		super(message);
+		if (Error.captureStackTrace) {
+			Error.captureStackTrace(this, CustomError);
+		}
+		Object.setPrototypeOf(this, new.target.prototype);
+	}
+}
+
+export function generateRandomString(): string {
+	const characters =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	let result = "";
+	const length = 5;
+
+	for (let i = 0; i < length; i++) {
+		const randomIndex = Math.floor(Math.random() * characters.length);
+		result += characters.charAt(randomIndex);
+	}
+
+	return result;
+}
+
+export function getRandomNumber(min: number, max: number): string {
+	return Math.floor(Math.random() * (max - min + 1) + min).toString();
+}
+
+export function generateRandomNumbers(count: number): string {
+	let numbers: string[] = [];
+	for (let i = 0; i < count; i++) {
+		let randomNumber = Math.floor(Math.random() * (9 - 0) + 0);
+		numbers.push(randomNumber.toString());
+	}
+	return numbers.join("");
+}
+export const roundNumber = (num: number) =>
+	Math.round((num + Number.EPSILON) * 100) / 100;
+
+export function deepClone(obj: any) {
+	if (obj === null || typeof obj !== "object") {
+		return obj;
+	}
+
+	// Create a new object with the same prototype as the original object
+	const clone = Object.create(Object.getPrototypeOf(obj));
+
+	// Copy all enumerable properties from the original object to the clone
+	for (const key of Object.keys(obj)) {
+		clone[key] = deepClone(obj[key]);
+	}
+
+	return clone;
+}
+export const compressImage = async (file: any) => {
+	return new Promise((resolve, reject) => {
+		new Compressor(file, {
+			quality: 0.6,
+			success(compressedBlob) {
+				const compressedFile = new File([compressedBlob], file.name, {
+					type: file.type,
+				});
+				resolve(compressedFile);
+			},
+			error(error) {
+				reject(error);
+			},
+		});
+	});
+};
+
+export const generateProductSKU = async (name: string) => {
+	const skuGenerator = await SKUGenerator.getInstance();
+	const sku = await skuGenerator.generateSKU(name);
+	return sku;
+};
+
+export function calculateAverageRating(reviews: ReviewType[]): number | null {
+	if (!reviews?.length) {
+		return 0;
+	}
+
+	const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+	return sum / reviews.length;
+}
+
+export function getInitials(fullName: string): string {
+	return fullName
+		.trim()
+		.split(" ")
+		.filter((word) => word.length > 0)
+		.map((word) => word[0].toUpperCase())
+		.join("");
+}
+
+export function generateCryptoString(length: number): string {
+	const timestamp = Date.now().toString();
+	const randomBytes = crypto.randomBytes(16).toString("hex");
+	const combinedString = `${timestamp}-${randomBytes}`;
+	return crypto
+		.createHash("sha256")
+		.update(combinedString)
+		.digest("hex")
+		.slice(0, length);
+}
+export function calculateDiscountPercentage(
+	price: number,
+	discountPrice: number
+): number {
+	// Ensure the price is greater than 0 to avoid division by zero
+	if (price <= 0) {
+		throw new Error("Price must be greater than 0.");
+	}
+
+	// Ensure the discount price is less than or equal to the price
+	if (discountPrice > price) {
+		throw new Error(
+			"Discount price cannot be greater than the original price."
+		);
+	}
+
+	// Calculate the discount percentage
+	const discountPercentage = ((price - discountPrice) / price) * 100;
+
+	// Round to the nearest whole number
+	return Math.round(discountPercentage);
 }

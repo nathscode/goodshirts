@@ -1,45 +1,77 @@
 "use client";
 
-import React, { useTransition } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { ReviewSchema, ReviewSchemaInfer } from "@/lib/validations/review";
-import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/src/components/ui/form";
+import { Input } from "@/src/components/ui/input";
+import { ReviewSchema, ReviewSchemaInfer } from "@/src/lib/validators/review";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import StarRatingButton from "../StarRatingButton";
-import { Textarea } from "../ui/textarea";
 import LoadingButton from "../common/LoadingButton";
+import { Textarea } from "../ui/textarea";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-type Props = {};
+type Props = {
+	image: string;
+	productId: string;
+	name: string;
+	lastName: string;
+};
 
-const RatingForm = (props: Props) => {
-	const [isLoading, startTransition] = useTransition();
+const RatingForm = ({ image, productId, name, lastName }: Props) => {
 	const router = useRouter();
 	const form = useForm<ReviewSchemaInfer>({
 		resolver: zodResolver(ReviewSchema),
 		defaultValues: {
-			rating: 1,
+			productId: productId,
+			rating: 0,
 			title: "",
-			name: "",
-			message: "",
+			name: lastName,
+			comment: "",
 		},
 	});
 	const rating = form.watch("rating");
 
+	const { mutate, isPending } = useMutation({
+		mutationFn: async (values: ReviewSchemaInfer) => {
+			const { data } = await axios.post("/api/reviews", values);
+			return data;
+		},
+		onSuccess: (data) => {
+			if (data && data.status === "success") {
+				router.push("/customer/reviews");
+				form.reset();
+				toast.success("Review submitted successfully");
+			} else {
+				console.error("Unexpected response structure:", data);
+				toast.error("Unexpected response from server");
+			}
+		},
+		onError: (err: any) => {
+			console.error("Mutation failed. Error:", err);
+			const errorMessage =
+				err.response?.data?.errors?.message || "Server error";
+			toast.error("An error occurred", { description: errorMessage });
+		},
+	});
+
 	function onSubmit(values: ReviewSchemaInfer) {
-		console.log(values);
+		if (values.rating === 0) {
+			toast.error("Please select a rating before submitting");
+			return;
+		}
+		mutate(values);
 	}
 	return (
 		<div className="flex flex-col w-full">
@@ -52,19 +84,19 @@ const RatingForm = (props: Props) => {
 				<div className="relative shrink-0 w-[70px] h-[70px] sm:w-[100px] sm:h-[100px] overflow-hidden bg-slate-300 rounded-md">
 					<Image
 						className="object-cover w-full h-full rounded-md"
-						src={"/images/placeholder-image.png"}
+						src={image ?? "/images/placeholder-image.png"}
 						alt={"order"}
 						fill
 					/>
 				</div>
 				<div className="justify-start ms-5 w-full">
 					<div className="flex flex-col max-w-xs mt-0">
-						<h1 className="text-base font-me leading-relaxed line-clamp-2 text-foreground">
-							Sweatshirt
+						<h1 className="text-base font-me leading-relaxed line-clamp-2 text-foreground capitalize">
+							{name}
 						</h1>
 						<div className="my-2">
 							<StarRatingButton
-								rating={rating}
+								rating={rating!}
 								onRating={(value: number) => form.setValue("rating", value)}
 							/>
 						</div>
@@ -89,7 +121,8 @@ const RatingForm = (props: Props) => {
 											<FormControl>
 												<Input
 													className="border-black rounded-none uppercase"
-													placeholder="Enter Title"
+													placeholder="E.g Great, Awesome, Fantastic etc"
+													disabled={form.formState.isSubmitting}
 													{...field}
 												/>
 											</FormControl>
@@ -109,7 +142,9 @@ const RatingForm = (props: Props) => {
 												<Input
 													className="border-black rounded-none uppercase"
 													placeholder="Enter full name"
+													disabled={form.formState.isSubmitting}
 													{...field}
+													value={lastName}
 												/>
 											</FormControl>
 											<FormMessage />
@@ -121,15 +156,16 @@ const RatingForm = (props: Props) => {
 						<div className="flex flex-col w-full">
 							<FormField
 								control={form.control}
-								name="message"
+								name="comment"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Message</FormLabel>
+										<FormLabel>Comment</FormLabel>
 										<FormControl>
 											<Textarea
 												className="border-black rounded-none uppercase"
 												placeholder="Tell us about your rating"
-												id="message"
+												id="comment"
+												disabled={form.formState.isSubmitting}
 												{...field}
 											/>
 										</FormControl>
@@ -141,7 +177,7 @@ const RatingForm = (props: Props) => {
 						<div className="flex flex-col w-full mt-2">
 							<LoadingButton
 								type="submit"
-								loading={isLoading}
+								loading={isPending}
 								className="mt-6 uppercase w-auto text-xs rounded-none font-semibold px-8 py-[22px]"
 							>
 								Submit your review

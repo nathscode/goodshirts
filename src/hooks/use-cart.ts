@@ -1,165 +1,168 @@
+import { CartProduct } from "@/src/types";
 import { create } from "zustand";
-import { persist, createJSONStorage, PersistOptions } from "zustand/middleware";
-import { CartProduct } from "@/types";
+import { createJSONStorage, persist } from "zustand/middleware";
+import {
+	AddressType,
+	PriceVariantType,
+	ProductWithExtra,
+	VariantType,
+} from "../db/schema";
 
+// Helper function to convert ProductWithExtra to CartProduct
+const convertToCartProduct = (product: ProductWithExtra): CartProduct => {
+	return {
+		...product,
+		media: product.medias, // Assuming the media field needs to be renamed
+		variants: product.variants.map((variant) => ({
+			...variant,
+			variantPrices: variant.variantPrices, // Map as required
+		})),
+	};
+};
 export interface CartItem {
 	item: CartProduct;
+	variant: VariantType;
+	size: PriceVariantType;
 	quantity: number;
 }
 
 interface Store {
 	cartItems: CartItem[];
-	total: number;
+	totalQuantity: number;
 	totalPrice: number;
+	total: number;
 	shippingFee: number;
-	addItem: (item: CartItem) => void;
-	removeItem: (idToRemove: string) => void;
-	increaseQuantity: (idToIncrease: string) => void;
-	decreaseQuantity: (idToDecrease: string) => void;
+	selectedAddress: AddressType | null;
+	getItems: () => CartItem[];
+	addItem: (
+		item: ProductWithExtra,
+		variant: VariantType,
+		size: PriceVariantType,
+		quantity?: number
+	) => void;
+	removeItem: (idToRemove: string, variantId: string, sizeId: string) => void;
+	updateQuantity: (
+		id: string,
+		variantId: string,
+		sizeId: string,
+		newQuantity: number
+	) => void;
 	clearCart: () => void;
 	setShippingFee: (fee: number) => void;
+	setSelectedAddress: (selectedAddress: AddressType | null) => void;
 }
 
-const calculateTotalPrice = (
-	cartItems: CartItem[],
-	shippingFee: number
-): number => {
-	const itemsTotal = cartItems.reduce((total, { item, quantity }) => {
-		const itemPrice = item.price !== null ? Number(item.price) * quantity : 0;
-
-		return total + itemPrice;
+const calculateTotal = (cartItems: CartItem[], shippingFee: number) => {
+	const itemsTotal = cartItems.reduce((total, { size, quantity }) => {
+		const price = size.discountPrice
+			? Number(size.discountPrice)
+			: Number(size.price);
+		return total + price * quantity;
 	}, 0);
-
-	return itemsTotal + shippingFee;
+	return {
+		total: itemsTotal,
+		totalPrice: itemsTotal + shippingFee,
+		totalQuantity: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+	};
 };
-
-const calculateTotal = (cartItems: CartItem[]): number => {
-	return cartItems.reduce((total, { item, quantity }) => {
-		const itemPrice = item.price !== null ? Number(item.price) * quantity : 0;
-
-		return total + itemPrice;
-	}, 0);
-};
-const isBrowser = typeof window !== "undefined";
-
-const storage = isBrowser ? createJSONStorage(() => localStorage) : null;
 
 const useCartStore = create<Store>()(
 	persist(
 		(set, get) => ({
 			cartItems: [],
-			addons: [],
-			selectedAddons: null,
-			total: 0,
+			totalQuantity: 0,
 			totalPrice: 0,
+			total: 0,
 			shippingFee: 0,
-			addItem: (data: CartItem) => {
-				const { item, quantity } = data;
+			selectedAddress: null,
+			getItems: () => get().cartItems,
+			addItem: (item, variant, size, quantity = 1) => {
 				const currentItems = get().cartItems;
-				const isExisting = currentItems.find(
-					(cartItem) => cartItem.item.id === item.id
+				const cartProduct = convertToCartProduct(item);
+
+				const existingItemIndex = currentItems.findIndex(
+					(cartItem) =>
+						cartItem.item.id === item.id &&
+						cartItem.variant.id === variant.id &&
+						cartItem.size.id === size.id
 				);
 
-				if (isExisting) {
-					return { description: "Item already in cart" };
+				let newCartItems;
+				if (existingItemIndex >= 0) {
+					// Update existing item's quantity
+					newCartItems = currentItems.map((cartItem, index) =>
+						index === existingItemIndex
+							? { ...cartItem, quantity: quantity }
+							: cartItem
+					);
+				} else {
+					// Add new item with its own variant/size
+					newCartItems = [
+						...currentItems,
+						{ item: cartProduct, variant, size, quantity },
+					];
 				}
 
-				const newCartItems = [...currentItems, { item, quantity }];
-				const newTotalPrice = calculateTotalPrice(
+				const { totalPrice, total, totalQuantity } = calculateTotal(
 					newCartItems,
 					get().shippingFee
 				);
-				const newTotal = calculateTotal(newCartItems);
-
-				set({
-					cartItems: newCartItems,
-					total: newTotal,
-					totalPrice: newTotalPrice,
-					shippingFee: get().shippingFee,
-				});
-				return { description: "Item added to cart" };
+				set({ cartItems: newCartItems, total, totalPrice, totalQuantity });
 			},
-			removeItem: (idToRemove: string) => {
+			removeItem: (idToRemove, variantId, sizeId) => {
 				const newCartItems = get().cartItems.filter(
-					(cartItem) => cartItem.item.id !== idToRemove
+					(cartItem) =>
+						!(
+							cartItem.item.id === idToRemove &&
+							cartItem.variant.id === variantId &&
+							cartItem.size.id === sizeId
+						)
 				);
-				const newTotalPrice = calculateTotalPrice(
+				const { total, totalPrice, totalQuantity } = calculateTotal(
 					newCartItems,
 					get().shippingFee
 				);
-				const newTotal = calculateTotal(newCartItems);
-
-				set({
-					cartItems: newCartItems,
-					total: newTotal,
-					totalPrice: newTotalPrice,
-					shippingFee: get().shippingFee,
-				});
-				return { description: "Item removed from cart" };
+				set({ cartItems: newCartItems, total, totalPrice, totalQuantity });
 			},
-			increaseQuantity: (idToIncrease: string) => {
+			updateQuantity: (id, variantId, sizeId, newQuantity) => {
+				if (newQuantity < 1) return;
+
 				const newCartItems = get().cartItems.map((cartItem) =>
-					cartItem.item.id === idToIncrease
-						? { ...cartItem, quantity: cartItem.quantity + 1 }
+					cartItem.item.id === id &&
+					cartItem.variant.id === variantId &&
+					cartItem.size.id === sizeId
+						? { ...cartItem, quantity: newQuantity }
 						: cartItem
 				);
-				const newTotalPrice = calculateTotalPrice(
+
+				const { total, totalPrice, totalQuantity } = calculateTotal(
 					newCartItems,
 					get().shippingFee
 				);
-				const newTotal = calculateTotal(newCartItems);
-
-				set({
-					cartItems: newCartItems,
-					total: newTotal,
-					totalPrice: newTotalPrice,
-					shippingFee: get().shippingFee,
-				});
-				return { description: "Item quantity increased" };
-			},
-			decreaseQuantity: (idToDecrease: string) => {
-				const newCartItems = get().cartItems.map((cartItem) =>
-					cartItem.item.id === idToDecrease
-						? { ...cartItem, quantity: cartItem.quantity - 1 }
-						: cartItem
-				);
-				const newTotalPrice = calculateTotalPrice(
-					newCartItems,
-					get().shippingFee
-				);
-				const newTotal = calculateTotal(newCartItems);
-
-				set({
-					cartItems: newCartItems,
-					total: newTotal,
-					totalPrice: newTotalPrice,
-					shippingFee: get().shippingFee,
-				});
-				return { description: "Item quantity decreased" };
+				set({ cartItems: newCartItems, total, totalPrice, totalQuantity });
 			},
 			clearCart: () =>
 				set({
 					cartItems: [],
 					total: 0,
 					totalPrice: 0,
+					totalQuantity: 0,
 					shippingFee: 0,
 				}),
-
-			setShippingFee: (fee: number) => {
-				const newTotal = calculateTotal(get().cartItems);
-				const newTotalPrice = calculateTotalPrice(get().cartItems, fee);
-				set((state) => ({
-					...state,
-					shippingFee: fee,
-					total: newTotal,
-					totalPrice: newTotalPrice,
-				}));
+			setSelectedAddress: (address: AddressType | null) =>
+				set((state) => ({ ...state, selectedAddress: address })),
+			setShippingFee: (fee) => {
+				const { total, totalPrice, totalQuantity } = calculateTotal(
+					get().cartItems,
+					fee
+				);
+				set({ shippingFee: fee, total, totalPrice, totalQuantity });
 			},
 		}),
 		{
-			name: "harmony-cart-storage",
-			storage: storage,
-		} as PersistOptions<Store>
+			name: "goodshirts-cart-storage",
+			storage: createJSONStorage(() => localStorage),
+		}
 	)
 );
 

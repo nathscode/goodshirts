@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/lib/utils";
 import {
 	BoxIcon,
 	Edit2,
@@ -12,13 +12,14 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
+import LogoutButton from "./LogoutButton";
 
 type Props = {};
 
 const CustomerSidebar = (props: Props) => {
 	const pathname = usePathname();
 	return (
-		<div className="flex flex-col h-full w-full sm:w-[300px]">
+		<div className="flex flex-col h-full w-full sm:w-[300px] pt-5">
 			<ul className="w-full h-screen bg-slate-100 shadow-sm flex flex-col justify-start items-center rounded-sm text-sm">
 				<li className="w-full">
 					<Link
@@ -86,6 +87,7 @@ const CustomerSidebar = (props: Props) => {
 						<span className="font-medium">Address</span>
 					</Link>
 				</li>
+				<LogoutButton />
 			</ul>
 		</div>
 	);

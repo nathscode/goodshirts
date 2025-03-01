@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 import {
 	Sheet,
 	SheetClose,
@@ -6,8 +6,8 @@ import {
 	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
-} from "@/components/ui/sheet";
-import useCartStore from "@/hooks/use-cart";
+} from "@/src/components/ui/sheet";
+import useCartStore from "@/src/hooks/use-cart";
 import Image from "next/image";
 import CartSection from "../CartSection";
 import { ShoppingCart } from "lucide-react";
@@ -24,11 +24,16 @@ export function CartSheet({ open, onOpenChange }: Props) {
 	return (
 		<Sheet open={open} onOpenChange={openChangeWrapper}>
 			<SheetTrigger>
-				<ShoppingCart className="size-5 text-gray-700 relative top-[2px]" />
+				<div className="relative">
+					<ShoppingCart className="size-5 text-gray-700 relative top-[2px]" />
+					<div className="bg-red-500 rounded-full absolute -top-[5px] right-[-18px] w-[18px] h-[18px] text-[12px] text-white flex flex-col items-center justify-center ">
+						{cartItems.length}
+					</div>
+				</div>
 			</SheetTrigger>
 			<SheetContent className="w-full sm:max-w-[450px]">
 				<SheetHeader>
-					<SheetTitle>My Cart {`(1)`}</SheetTitle>
+					<SheetTitle>My Cart ({cartItems.length})</SheetTitle>
 				</SheetHeader>
 				<div className="flex flex-col w-full mt-5">
 					{cartItems.length === 0 ? (
@@ -58,7 +63,7 @@ export function CartSheet({ open, onOpenChange }: Props) {
 						</div>
 					) : (
 						<div className="flex flex-col">
-							<CartSection />
+							<CartSection carts={cartItems} />
 						</div>
 					)}
 				</div>

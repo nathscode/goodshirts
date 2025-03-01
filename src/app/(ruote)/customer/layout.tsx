@@ -1,8 +1,13 @@
-import CustomerSidebar from "@/components/CustomerSidebar";
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import { auth } from "@/auth";
+import CustomerSidebar from "@/src/components/CustomerSidebar";
+import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
 import { redirect } from "next/navigation";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
+	const session = await auth();
+	if (!session?.user) {
+		return redirect("/login");
+	}
 	return (
 		<MaxWidthWrapper>
 			<div className="flex max-lg:flex-col text-grey-1">

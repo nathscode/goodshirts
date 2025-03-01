@@ -1,9 +1,12 @@
-import BackButton from "@/components/common/BackButton";
-import React from "react";
+import { auth } from "@/auth";
+import getCurrentUser from "@/src/actions/getCurrentUser";
+import AddressBox from "@/src/components/AddressBox";
+import BackButton from "@/src/components/common/BackButton";
 
 type Props = {};
 
-const CustomerAccountPage = (props: Props) => {
+const CustomerAccountPage = async (props: Props) => {
+	const session = await getCurrentUser();
 	return (
 		<div className="flex h-screen flex-col justify-start  w-full">
 			<div className="flex flex-col flex-1 w-full bg-slate-50 p-3">
@@ -22,31 +25,15 @@ const CustomerAccountPage = (props: Props) => {
 								</h1>
 							</div>
 							<div className="flex flex-col p-4">
-								<p className="text-sm capitalize">Michael Nathan</p>
+								<p className="text-sm capitalize">{`${session?.firstName} ${session?.lastName}`}</p>
 								<p className="text-sm capitalize text-gray-500 mt-1">
-									codeorakle@gmail.com
+									{`${session?.email}`}
 								</p>
 							</div>
 						</div>
 					</div>
 					<div className="w-full md:w-1/2  md:pr-5 mb-5 md:mb-0">
-						<div className="flex flex-col w-full border rounded-sm">
-							<div className="flex flex-col border-b px-4 py-2">
-								<h1 className="text-sm font-medium uppercase">Address</h1>
-							</div>
-							<div className="flex flex-col p-4">
-								<p className="text-sm capitalize font-semibold">
-									Default Shipping Address
-								</p>
-								<p className="text-sm capitalize text-gray-500 mt-1">
-									Michael Nathan <br />
-									Ikeja, <br />
-									Lagos State.
-									<br />
-									090123456789
-								</p>
-							</div>
-						</div>
+						<AddressBox id={session?.id!} />
 					</div>
 				</div>
 			</div>

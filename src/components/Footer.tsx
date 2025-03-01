@@ -8,7 +8,7 @@ const Footer = () => {
 				<div className="grid gap-10 row-gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
 					<div className="sm:col-span-2">
 						<div className="mt-6 lg:max-w-sm">
-							<h2 className="font-inter text-gray-800 text-2xl">
+							<h2 className="font-inter text-gray-800 text-lg sm:text-2xl">
 								<Link
 									href="mailto:support@africagoodshirts.com"
 									aria-label="Our email"

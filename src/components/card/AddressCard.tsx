@@ -1,9 +1,13 @@
 import { Edit2, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
+import { AddressType } from "@/src/db/schema";
+import DeliveryAddress from "../DeliveryAddress";
 
-type Props = {};
+type Props = {
+	address: AddressType;
+};
 
-const AddressCard = (props: Props) => {
+const AddressCard = ({ address }: Props) => {
 	return (
 		<div className="flex flex-col w-full">
 			<div className="flex flex-col w-full border rounded-sm">
@@ -15,11 +19,12 @@ const AddressCard = (props: Props) => {
 						Default Shipping Address
 					</p>
 					<p className="text-sm capitalize text-gray-500 mt-1">
-						Michael Nathan <br />
-						Ikeja, <br />
-						Lagos State.
+						{`${address?.fullName}`}
 						<br />
-						090123456789
+						{`${address?.addressLine1}, ${address?.city}`}, <br />
+						{address?.state} State.
+						<br />
+						{address?.phoneNumber}
 					</p>
 				</div>
 				<div className="flex flex-col border-t p-2">
