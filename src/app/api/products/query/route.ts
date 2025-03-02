@@ -241,6 +241,8 @@ export async function GET(request: Request) {
 		const totalCountQuery = await db
 			.select({ count: count(products.id) })
 			.from(products)
+			.leftJoin(categories, eq(products.categoryId, categories.id))
+			.leftJoin(subCategories, eq(products.subCategoryId, subCategories.id))
 			.where(conditions.length > 0 ? and(...conditions) : undefined);
 
 		const totalCount = totalCountQuery[0]?.count || 0;

@@ -4,6 +4,8 @@ import { ProductWithExtra } from "@/src/db/schema";
 import { useQuery } from "@tanstack/react-query";
 import ProductSkeleton from "../skeleton/ProductSkeleton";
 import FeaturedProductCard from "../card/FeaturedProductCard";
+import Carousel from "../common/Carousel";
+import FeaturedProductCardFake from "../card/FeaturedProductCardFake";
 
 type Props = {};
 
@@ -50,13 +52,11 @@ const FeaturedList = (props: Props) => {
 				</div>
 
 				<div className="flex flex-wrap justify-center md:justify-start w-full gap-5">
-					{data.map((item: ProductWithExtra) => (
-						<FeaturedProductCard
-							key={item.id}
-							// @ts-ignore
-							product={item}
-						/>
-					))}
+					<Carousel title="Discounted Sales" slideLength={data.length}>
+						{data.map((item: ProductWithExtra) => (
+							<FeaturedProductCard key={item.id} product={item} />
+						))}
+					</Carousel>
 				</div>
 			</div>
 		);

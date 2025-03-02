@@ -29,7 +29,7 @@ const OrderDetailPage = async ({ params }: Props) => {
 	const isInProgress = currentStatusIndex > 0;
 
 	return (
-		<div className="flex h-screen flex-col justify-start w-full">
+		<div className="flex h-screen flex-col justify-start w-full py-10">
 			<div className="flex flex-col flex-1 w-full bg-slate-50 p-3">
 				<div className="flex justify-start border-b py-2">
 					<div className="justify-start">
@@ -41,10 +41,10 @@ const OrderDetailPage = async ({ params }: Props) => {
 					<h2 className="text-base uppercase font-semibold my-4 bg-neutral-200 p-2 w-full">
 						Order Progress
 					</h2>
-					<div>
+					<div className="flex flex-col pl-5">
 						<h2 className="sr-only">Steps</h2>
 						<ol
-							className={`relative pl-10 text-gray-500 border-s ${
+							className={`relative pl-5 text-gray-500 border-s ${
 								isInProgress ? "border-green-500" : "border-gray-200"
 							}`}
 						>

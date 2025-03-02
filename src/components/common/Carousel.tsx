@@ -11,7 +11,7 @@ type SectionProps = {
 	title?: string;
 	href?: string;
 	children?: React.ReactNode;
-	imageLength: number;
+	slideLength: number;
 };
 
 const Carousel: React.FC<SectionProps> = ({
@@ -19,7 +19,7 @@ const Carousel: React.FC<SectionProps> = ({
 	title,
 	href,
 	children,
-	imageLength,
+	slideLength: imageLength,
 }) => {
 	const [currentIndex, setCurrentIndex] = useState<number>(0);
 	const [showArrows, setShowArrows] = useState<boolean>(false);
@@ -71,7 +71,7 @@ const Carousel: React.FC<SectionProps> = ({
 		<div className={cn("relative w-full flex my-5 flex-col", className)}>
 			{title && (
 				<div className="flex items-center justify-between mb-5">
-					<h1 className="font-semibold text-lg sm:text-2xl text-foreground font-Orelega">
+					<h1 className="font-semibold text-lg sm:text-2xl text-foreground font-dela">
 						{title}
 					</h1>
 					<div className="flex items-center">

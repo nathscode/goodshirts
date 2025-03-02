@@ -30,7 +30,9 @@ const OrderDetailPage = async ({ params }: Props) => {
 					<h1 className="text-xl font-medium">Orders Details</h1>
 				</div>
 				<div className="flex flex-col justify-start w-full mt-4">
-					<h1 className="font-medium text-lg">Order No. {order.orderNumber}</h1>
+					<h1 className="font-medium text-base sm:text-lg">
+						Order No. {order.orderNumber}
+					</h1>
 					<p className="text-base text-gray-500">{order.items.length} items</p>
 					<p className="text-base text-gray-500">
 						Total {formatCurrency(order.grandTotal)}

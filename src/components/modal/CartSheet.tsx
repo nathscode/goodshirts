@@ -73,7 +73,7 @@ export function CartSheet({ open, onOpenChange }: Props) {
 						</div>
 					) : (
 						<div className="flex flex-col">
-							<CartSection carts={cartItems} />
+							<CartSection carts={cartItems} onOpenChange={onOpenChange} />
 						</div>
 					)}
 				</div>

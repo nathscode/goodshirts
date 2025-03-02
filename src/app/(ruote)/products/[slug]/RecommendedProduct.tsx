@@ -42,7 +42,7 @@ const RecommendedProduct = ({ categoryId }: Props) => {
 		);
 	}
 	return (
-		<Carousel title="Recommended" imageLength={data.length}>
+		<Carousel title="Recommended" slideLength={data.length}>
 			{data.map((product) => (
 				<ProductCard key={product.id} product={product} />
 			))}

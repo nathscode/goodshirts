@@ -1,4 +1,4 @@
-import Link from "next/link";
+"use client";
 import useCartStore, { CartItem } from "../hooks/use-cart";
 import { formatCurrency, roundNumber } from "../lib/utils";
 import CartCard from "./card/CartCard";
@@ -7,12 +7,19 @@ import { ScrollArea } from "./ui/scroll-area";
 
 type Props = {
 	carts: CartItem[];
+	onOpenChange: (open: boolean) => void;
 };
 
-const CartSection = ({ carts }: Props) => {
+const CartSection = ({ carts, onOpenChange }: Props) => {
 	const { clearCart, shippingFee, total, totalPrice } = useCartStore();
+
 	let subTotal = roundNumber(total);
 	let grandTotal = roundNumber(totalPrice);
+
+	const handleProceedToCheckout = () => {
+		onOpenChange(false);
+		window.location.href = "/checkout";
+	};
 
 	return (
 		<div className="flex flex-col h-full w-full">
@@ -68,9 +75,9 @@ const CartSection = ({ carts }: Props) => {
 					<div className="flex flex-col mt-5">
 						<Button
 							className="uppercase inline-flex text-sm rounded-none font-semibold px-8"
-							asChild
+							onClick={handleProceedToCheckout}
 						>
-							<Link href={"/checkout"}>Proceed to checkout</Link>
+							Proceed to checkout
 						</Button>
 					</div>
 				</div>
@@ -78,5 +85,4 @@ const CartSection = ({ carts }: Props) => {
 		</div>
 	);
 };
-
 export default CartSection;

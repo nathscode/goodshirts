@@ -47,13 +47,11 @@ export function constructMetadata({
 	title = "AfricaGoodShirts - Where luxury speaks",
 	description = "AfricaGoodShirts get affordable luxury men clothings",
 	image = "/images/summary_logo.jpg",
-	icons = "/src/app/favicon.ico",
 	noIndex = false,
 }: {
 	title?: string;
 	description?: string;
 	image?: string;
-	icons?: string;
 	noIndex?: boolean;
 } = {}): Metadata {
 	return {
@@ -75,7 +73,6 @@ export function constructMetadata({
 			images: [image],
 			creator: "@nathscode",
 		},
-		icons,
 		metadataBase: new URL("https://africagoodshirts.ng"),
 		...(noIndex && {
 			robots: {
@@ -120,6 +117,13 @@ export function trimAndLowercase(inputString: string): string {
 }
 export function trimAndUppercase(inputString: string): string {
 	return inputString.trim().toUpperCase();
+}
+export function toTitleCase(inputString: string): string {
+	return inputString
+		.toLowerCase()
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
 }
 
 export function handlerNativeResponse(data: any, status: number) {

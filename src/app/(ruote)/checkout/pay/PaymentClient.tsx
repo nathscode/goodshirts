@@ -29,15 +29,6 @@ const PaymentClient = ({ email }: Props) => {
 	} = useCartStore();
 
 	// ✅ Redirect inside useEffect instead of returning void
-	useEffect(() => {
-		if (cartItems.length === 0) {
-			router.push("/products");
-		}
-	}, [cartItems, router]);
-
-	if (cartItems.length === 0) {
-		return <p>Redirecting...</p>; // Temporary fallback while redirect happens
-	}
 
 	let subTotal = roundNumber(total);
 	let grandTotal = roundNumber(totalPrice);

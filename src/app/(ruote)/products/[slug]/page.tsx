@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import fetchProductBySlug from "@/src/actions/fetchProductBySlug";
 import NotFound from "@/src/app/not-found";
 import { ProductWithExtra } from "@/src/db/schema";
+import { toTitleCase } from "@/src/lib/utils";
 
 interface IParams {
 	slug?: string;
@@ -26,10 +27,10 @@ export const generateMetadata = async ({
 		urlImage = product.medias[0].url;
 	}
 	return {
-		title: product?.name,
+		title: toTitleCase(product?.name!),
 		description: product?.description,
 		openGraph: {
-			title: product?.name,
+			title: toTitleCase(product?.name!),
 			description: product?.description!,
 			url: `https://africagoodshirts.ng/products/${product?.slug}`,
 			siteName: "Africagoodshirts",
