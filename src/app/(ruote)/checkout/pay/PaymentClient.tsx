@@ -1,24 +1,23 @@
 "use client";
-import DeliveryAddress from "@/src/components/DeliveryAddress";
-import { Separator } from "@/src/components/ui/separator";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import useCartStore from "@/src/hooks/use-cart";
-import { formatCurrency, roundNumber } from "@/src/lib/utils";
+import { PaystackButton } from "react-paystack";
 import axios from "axios";
-import { useSession } from "next-auth/react";
-import { useState } from "react";
-import { PaystackButton, usePaystackPayment } from "react-paystack";
-import { toast } from "sonner";
-
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import DeliveryAddress from "@/src/components/DeliveryAddress";
 import SuccessModal from "@/src/components/modal/SuccessModal";
+import { Separator } from "@/src/components/ui/separator";
 import { Loader2 } from "lucide-react";
+import { formatCurrency, roundNumber } from "@/src/lib/utils";
 
-type Props = {};
+type Props = { email: string };
 
-const PaymentClient = (props: Props) => {
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [showModal, setShowModal] = useState<boolean>(false);
-	const { data: session } = useSession();
+const PaymentClient = ({ email }: Props) => {
+	const [isLoading, setIsLoading] = useState(false);
+	const [showModal, setShowModal] = useState(false);
+	const router = useRouter();
 
 	const {
 		cartItems,
@@ -29,7 +28,16 @@ const PaymentClient = (props: Props) => {
 		clearCart,
 	} = useCartStore();
 
-	// if (cartItems.length === 0) return (window.location.href = "/products");
+	// ✅ Redirect inside useEffect instead of returning void
+	useEffect(() => {
+		if (cartItems.length === 0) {
+			router.push("/products");
+		}
+	}, [cartItems, router]);
+
+	if (cartItems.length === 0) {
+		return <p>Redirecting...</p>; // Temporary fallback while redirect happens
+	}
 
 	let subTotal = roundNumber(total);
 	let grandTotal = roundNumber(totalPrice);
@@ -40,19 +48,16 @@ const PaymentClient = (props: Props) => {
 			const { data } = await axios.post("/api/orders/", formData);
 			return data;
 		},
-		onSuccess: (data: any) => {
-			console.log("Order mutation successful:", data);
+		onSuccess: (data) => {
 			if (data.success) {
 				toast.success("Order Successful");
 				setShowModal(true);
-				setIsLoading(false);
 				clearCart();
 			} else {
 				throw new Error(data.message);
 			}
 		},
 		onError: (error) => {
-			console.error("Order mutation error:", error);
 			toast.error(error.message);
 		},
 		onSettled: () => {
@@ -60,35 +65,22 @@ const PaymentClient = (props: Props) => {
 		},
 	});
 
-	const onClose = () => {
-		console.log("Payment closed");
-	};
 	const handlePaystackSuccessAction = (reference: any) => {
 		onSubmitFormData(reference);
-		console.log(reference);
 	};
 
-	// you can call this function anything
 	const handlePaystackCloseAction = () => {
-		// implementation for  whatever you want to do when the Paystack dialog closed.
-		console.log("closed");
+		router.push("/checkout/pay");
+		toast.error("Payment cancelled");
 	};
-
-	function onSuccess(reference: any) {
-		console.log("Payment successful, Paystack reference:", reference);
-		onSubmitFormData(reference);
-	}
 
 	async function onSubmitFormData(reference: any) {
-		console.log("onSubmit fired, reference:", reference);
-		if (!cartItems || cartItems.length === 0) {
-			console.error("Cart is empty, cannot create order.");
+		if (!cartItems.length) {
 			toast.error("Cart is empty, cannot create order.");
 			return;
 		}
 
 		if (!selectedAddress) {
-			console.error("No delivery address selected.");
 			toast.error("Please select a delivery address.");
 			return;
 		}
@@ -114,7 +106,7 @@ const PaymentClient = (props: Props) => {
 	};
 
 	const config = {
-		email: session?.user.email ?? "",
+		email: email ?? "",
 		amount: grandTotal * 100,
 		publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
 		metadata,
@@ -122,23 +114,9 @@ const PaymentClient = (props: Props) => {
 	const componentProps = {
 		...config,
 		text: "Pay Now",
-		onSuccess: (reference: any) => handlePaystackSuccessAction(reference),
+		onSuccess: handlePaystackSuccessAction,
 		onClose: handlePaystackCloseAction,
 	};
-	const initializePayment = usePaystackPayment(config);
-
-	function initPayment() {
-		if (cartItems.length === 0) {
-			toast.error("Your cart is empty.");
-			return;
-		}
-
-		if (isLoading) return;
-
-		console.log("Initializing payment...");
-		// @ts-ignore
-		initializePayment(onSuccess, onClose);
-	}
 
 	return (
 		<div className="flex flex-col justify-start w-full h-full p-4 rounded-sm border bg-slate-50">
@@ -168,36 +146,29 @@ const PaymentClient = (props: Props) => {
 					<span className="text-zinc-500">Subtotal</span>
 					<span>{formatCurrency(subTotal.toString())}</span>
 				</li>
-
 				<li className="inline-flex items-center justify-between w-full text-sm py-1">
 					<span className="text-zinc-500">Shipping</span>
 					<span>
-						{" "}
 						{shippingFee > 0 ? formatCurrency(shippingFee.toString()) : "Free"}
 					</span>
 				</li>
 				<li className="inline-flex items-center justify-between w-full text-sm mt-4">
-					<strong className="">Total</strong>
+					<strong>Total</strong>
 					<strong className="font-bold">
 						{formatCurrency(grandTotal.toString())}
 					</strong>
 				</li>
 			</ul>
-			{!isPending && (
+			{!isPending ? (
 				<PaystackButton
 					disabled={isPending}
 					className="disabled:bg-gray-600 uppercase inline-flex text-center items-center justify-center text-sm rounded-none font-semibold py-2 px-8 mt-4 bg-black text-white"
 					{...componentProps}
 				/>
-			)}
-			{isPending && (
-				<div className=" uppercase inline-flex text-center items-center justify-center text-sm rounded-none font-semibold py-2 px-8 mt-4 bg-gray-700 text-white">
-					{isPending && (
-						<div className="inline-flex justify-center item-center gap-1">
-							<span>Placing Order...</span>
-							<Loader2 size={16} className="animate-spin" />
-						</div>
-					)}
+			) : (
+				<div className="uppercase inline-flex text-center items-center justify-center text-sm rounded-none font-semibold py-2 px-8 mt-4 bg-gray-700 text-white">
+					<span>Placing Order...</span>
+					<Loader2 size={16} className="animate-spin" />
 				</div>
 			)}
 			{showModal && <SuccessModal />}

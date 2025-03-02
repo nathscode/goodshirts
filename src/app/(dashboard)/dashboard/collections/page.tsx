@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getAllCollections } from "@/src/actions/collection.action";
 import { CollectionColumns } from "@/src/components/columns/CollectionColumn";
 import { DataTable } from "@/src/components/common/DataTable";

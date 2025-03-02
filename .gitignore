@@ -39,4 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+auth-copy.ts
+auth2copy.ts
+auth3copy.ts
 /react-email-starter
