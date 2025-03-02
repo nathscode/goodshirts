@@ -3,13 +3,9 @@
 import { ProductType, products } from "@/src/db/schema";
 import { desc } from "drizzle-orm";
 import db from "../db";
-import getCurrentUser from "./getCurrentUser";
 
 export default async function getAllProducts(): Promise<ProductType[] | null> {
 	try {
-		const session = await getCurrentUser();
-		if (!session) return null;
-
 		const allProducts = await db.query.products.findMany({
 			orderBy: [desc(products.createdAt)],
 		});

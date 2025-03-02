@@ -39,7 +39,6 @@ export async function getUserOrders(): Promise<OrderWithExtra[] | []> {
 		const plainOrders = JSON.parse(JSON.stringify(userOrders));
 		return plainOrders;
 	} catch (error) {
-		console.log(error);
 		logger.error("Database Error:", error);
 		throw new Error("Failed to fetch order");
 	}
@@ -79,7 +78,6 @@ export async function getDashboardOrders(): Promise<OrderWithExtra[] | []> {
 		const plainOrders = JSON.parse(JSON.stringify(userOrders));
 		return plainOrders;
 	} catch (error) {
-		console.log(error);
 		logger.error("Database Error:", error);
 		throw new Error("Failed to fetch order");
 	}

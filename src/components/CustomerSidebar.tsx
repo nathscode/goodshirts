@@ -1,17 +1,8 @@
 "use client";
 import { cn } from "@/src/lib/utils";
-import {
-	BoxIcon,
-	Edit2,
-	Heart,
-	Mail,
-	MapPinIcon,
-	User,
-	User2,
-} from "lucide-react";
+import { BoxIcon, Edit2, Heart, MapPinIcon, User2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
 import LogoutButton from "./LogoutButton";
 
 type Props = {};

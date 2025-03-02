@@ -43,8 +43,8 @@ const FeaturedList = (props: Props) => {
 		}
 		return (
 			<div className="flex flex-col w-full">
-				<div className="flex flex-col justify-center items-center w-full mb-10">
-					<h1 className="text-2xl font-semibold font-dela">
+				<div className="flex flex-col justify-center items-center text-center w-full mb-10">
+					<h1 className="text-xl sm:text-2xl font-semibold uppercase font-dela">
 						Featured Products
 					</h1>
 				</div>

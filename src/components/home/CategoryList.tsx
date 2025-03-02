@@ -23,18 +23,17 @@ const CategoryList = (props: Props) => {
 			queryFn: getCategories,
 		});
 
-
-	if (isPending) {
-		return (
-			<div className="flex flex-col sm:flex-row justify-center max-w-3xl lg:max-w-4xl mx-auto gap-4 my-5">
-				{Array.from({ length: 4 }).map((_, i) => (
-					<div key={i} className="flex flex-col w-full justify-start">
-						<CategorySkeleton />
-					</div>
-				))}
-			</div>
-		);
-	}
+		if (isPending) {
+			return (
+				<div className="flex justify-center max-w-3xl lg:max-w-4xl mx-auto gap-4 my-5">
+					{Array.from({ length: 4 }).map((_, i) => (
+						<div key={i} className="flex flex-col w-full justify-start">
+							<CategorySkeleton />
+						</div>
+					))}
+				</div>
+			);
+		}
 
 		if (error) return "An error has occurred: " + error.message;
 

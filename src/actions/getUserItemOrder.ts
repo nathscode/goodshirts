@@ -34,7 +34,6 @@ export async function getUserOrderItemById(
 		const plainOrders = JSON.parse(JSON.stringify(userOrders));
 		return plainOrders;
 	} catch (error) {
-		console.log(error);
 		logger.error("Database Error:", error);
 		throw new Error("Failed to fetch order");
 	}

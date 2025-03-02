@@ -91,7 +91,7 @@ const CartCard = ({ item, variant, size, quantity }: Props) => {
 							Qty: <small className="uppercase">{quantity}</small>
 						</span>
 					</div>
-					<div className="flex justify-between w-full mt-4">
+					<div className="flex flex-wrap gap-3 justify-between w-full mt-4">
 						<div className="flex space-x-4 justify-start">
 							<button
 								onClick={() => removeItemFromCart(item, variant, size)}

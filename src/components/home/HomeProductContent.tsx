@@ -9,7 +9,7 @@ import ProductSkeleton from "../skeleton/ProductSkeleton";
 
 const HomeProductContent = () => {
 	const fetchRecentProducts = async () => {
-		let url = `${baseURL}/products/`;
+		let url = `/api/products/`;
 
 		const response = await axios.get(url);
 		return response.data;

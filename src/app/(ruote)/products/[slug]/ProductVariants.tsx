@@ -52,9 +52,11 @@ const ProductVariants = ({
 			<ProductPrice
 				price={Number(selectedSize?.price)}
 				discountPrice={Number(selectedSize?.discountPrice)}
+				priceClassName="text-lg"
+				discountPriceClassName="text-lg"
 			/>
 			{/* Color Selection */}
-			<div className="flex justify-start flex-col">
+			<div className="flex justify-start flex-col w-full mt-4">
 				<h2 className="text-base text-black font-semibold mb-2">Colors:</h2>
 				<RadioGroup
 					className="flex justify-start items-center flex-wrap space-x-1"

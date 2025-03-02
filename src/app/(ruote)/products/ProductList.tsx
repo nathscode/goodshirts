@@ -66,8 +66,6 @@ const ProductList = () => {
 	const products = response?.products || [];
 	const pagination = response?.pagination;
 
-	console.log({ pagination });
-
 	// Loading state
 	if (isPending) {
 		return (

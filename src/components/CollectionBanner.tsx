@@ -8,9 +8,8 @@ type Props = {
 };
 
 const CollectionBanner = ({ collection }: Props) => {
-	console.log({ collection });
 	return (
-		<div className="relative h-[500px]">
+		<div className="relative h-[350px] sm:h-[500px]">
 			<div className="absolute inset-0 flex flex-col justify-center h-full">
 				<Image
 					src={collection.image}
@@ -25,7 +24,7 @@ const CollectionBanner = ({ collection }: Props) => {
 				<div className="px-4  mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 h-full flex flex-col justify-end">
 					<div className="flex flex-col justify-start w-full relative bottom-10">
 						<div className="w-full max-w-xl mb-12 xl:mb-0 xl:pr-16 xl:w-7/12">
-							<h2 className="max-w-lg mb-6 font-dela text-3xl font-bold tracking-tight text-white uppercase sm:text-4xl">
+							<h2 className="max-w-lg mb-6 font-dela text-2xl font-bold tracking-tight text-white uppercase sm:text-4xl">
 								{collection.name}
 							</h2>
 							<p className="max-w-xl mb-5 text-base text-slate-200 md:text-lg">

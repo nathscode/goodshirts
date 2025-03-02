@@ -95,7 +95,7 @@ const ProductClient = ({ product }: Props) => {
 						<h1 className="text-xl sm:text-2xl capitalize font-semibold">
 							{product.name}
 						</h1>
-						<ul className="flex flex-wrap justify-start items-center gap-4 mt-3 w-full">
+						<ul className="flex flex-wrap justify-start items-center gap-4 my-3 w-full">
 							<li className="inline-flex space-x-2 items-center">
 								<Star className="size-4 fill-black" />
 								<span className="text-sm font-semibold">{`(${calculateAverageRating(product.reviews)})`}</span>
@@ -108,14 +108,16 @@ const ProductClient = ({ product }: Props) => {
 								<span className="text-sm font-semibold">Reviews</span>
 							</li>
 							<span className="text-gray-300">|</span>
-							<li className="inline-flex space-x-2 items-center">
-								<span className=" text-sm font-semibold">
-									{abbreviateMetrics(5000)}
-								</span>
-								<span className="text-sm font-semibold whitespace-nowrap">
-									Sold Out
-								</span>
-							</li>
+							{Number(product.totalSales!) > 0 && (
+								<li className="inline-flex space-x-2 items-center">
+									<span className=" text-sm font-semibold">
+										{abbreviateMetrics(Number(product.totalSales || 0))}
+									</span>
+									<span className="text-sm font-semibold whitespace-nowrap">
+										Sold Out
+									</span>
+								</li>
+							)}
 						</ul>
 
 						<div className="flex flex-col justify-start items-start space-y-4 w-full">
@@ -127,7 +129,7 @@ const ProductClient = ({ product }: Props) => {
 								onSizeChange={handleSizeChange}
 							/>
 							<div className="flex flex-col">
-								<label htmlFor="quantity" className="mb-2">
+								<label htmlFor="quantity" className="mb-2 font-semibold">
 									Quantity
 								</label>
 								<form className="max-w-xs mx-auto">

@@ -6,11 +6,9 @@ import { products, savedProducts } from "../db/schema";
 import db from "../db";
 
 export async function savedProductAction({ productId }: { productId: string }) {
-	console.log(productId);
 	const session = await getCurrentUser();
 
 	if (!session) {
-		console.log("No session");
 		return { status: "error", message: "Log in to save this product" };
 	}
 	const userId = session.id!;
@@ -23,7 +21,6 @@ export async function savedProductAction({ productId }: { productId: string }) {
 		.limit(1);
 
 	if (!product) {
-		console.log("error");
 		return { status: "error", message: "product not found." };
 	}
 

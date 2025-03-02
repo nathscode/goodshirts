@@ -65,7 +65,6 @@ export async function saveProductAction(
 			return { status: "success", message: "Product saved successfully!" };
 		}
 	} catch (error) {
-		console.log(error);
 		logger.error("Database Error:", error);
 		throw new Error("Failed to toggle saved product");
 	}

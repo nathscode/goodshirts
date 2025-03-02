@@ -13,7 +13,7 @@ import {
 	trimAndLowercase,
 } from "@/src/lib/utils";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import slugify from "slugify";
 import { ZodError } from "zod";
@@ -23,43 +23,15 @@ const Bucket = process.env.TEBI_BUCKET_NAME;
 
 export async function GET(req: NextRequest) {
 	try {
-		const searchParams = req.nextUrl.searchParams;
-		const params = Object.fromEntries(searchParams);
-		const { category } = params;
-
-		let conditions = [eq(products.isActive, true)];
-
-		// **📌 Category Filtering Logic**
-		if (category) {
-			const existingCategory = await db.query.categories.findFirst({
-				where: eq(categories.name, String(category)),
-			});
-
-			// **🛑 If Category Not Found, Return Error**
-			if (!existingCategory) {
-				return new NextResponse(
-					JSON.stringify({
-						status: 403,
-						message: "Category not found",
-					}),
-					{ status: 403 }
-				);
-			}
-
-			// **📌 Add Category Condition**
-			conditions.push(eq(products.categoryId, existingCategory.id));
-		}
-
-		// **🔥 Fetch Products**
 		const productsList = await db.query.products.findMany({
-			where: and(...conditions),
+			where: eq(products.isActive, true),
 			with: {
 				medias: {
 					columns: {
 						id: true,
 						url: true,
 					},
-				}, // Explicitly define columns in `medias`
+				},
 				category: {
 					columns: {
 						id: true,
@@ -75,23 +47,12 @@ export async function GET(req: NextRequest) {
 			orderBy: [sql`${products.createdAt} DESC`],
 		});
 
-		// **🛑 If No Products Found**
 		if (!productsList.length) {
 			return new NextResponse(
 				JSON.stringify({ status: 404, message: "No products found" }),
 				{ status: 404 }
 			);
 		}
-
-		// **📊 Get Total Product Count**
-		const [{ count }] = await db
-			.select({ count: sql<number>`count(*)` })
-			.from(products)
-			.where(and(...conditions));
-
-		// **📌 Pagination Logic**
-
-		// **📦 Return Response**
 		return new NextResponse(
 			JSON.stringify({
 				data: productsList,

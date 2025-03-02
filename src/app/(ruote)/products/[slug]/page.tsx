@@ -7,6 +7,42 @@ import BreadCrumbs from "@/src/components/common/BreadCrumbs";
 import { redirect } from "next/navigation";
 import fetchProductBySlug from "@/src/actions/fetchProductBySlug";
 import NotFound from "@/src/app/not-found";
+import { ProductWithExtra } from "@/src/db/schema";
+
+interface IParams {
+	slug?: string;
+}
+
+export const generateMetadata = async ({
+	params,
+}: {
+	params: IParams;
+}): Promise<Metadata> => {
+	const product: ProductWithExtra | null = await fetchProductBySlug(
+		params.slug!
+	);
+	let urlImage = "";
+	if (product?.medias && product.medias.length > 0) {
+		urlImage = product.medias[0].url;
+	}
+	return {
+		title: product?.name,
+		description: product?.description,
+		openGraph: {
+			title: product?.name,
+			description: product?.description!,
+			url: `https://africagoodshirts.ng/products/${product?.slug}`,
+			siteName: "Africagoodshirts",
+			images: [
+				{
+					url: urlImage,
+					width: 1200,
+					height: 600,
+				},
+			],
+		},
+	};
+};
 
 const ProductDetailPage = async ({
 	params,

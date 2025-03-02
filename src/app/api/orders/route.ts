@@ -61,8 +61,6 @@ export async function POST(req: NextRequest) {
 		const payable = Number(formData.get("payable"));
 		const cartItems = JSON.parse(formData.get("cartItems") as string);
 
-		console.log({ payable });
-
 		if (!addressId || !Array.isArray(cartItems) || cartItems.length === 0) {
 			throw new Error("Invalid input data");
 		}
@@ -140,7 +138,6 @@ export async function POST(req: NextRequest) {
 
 		return NextResponse.json({ success: true, order: result.newOrder });
 	} catch (error: any) {
-		console.log("Error creating order:", error);
 		logger.error("Error creating order:", error);
 		return NextResponse.json(
 			{ error: error.message || "Server error" },
