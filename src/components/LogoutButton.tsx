@@ -1,20 +1,15 @@
 "use client";
-
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
-import { logout } from "../actions/user.action";
+import { signOut } from "next-auth/react";
 
 export default function LogoutButton() {
 	const onLogoutClick = async () => {
-		const response = await logout();
-		if (response.success) {
-			toast.success("Logout successful");
-			window.location.href = "/login";
-		} else {
-			toast.error(response.message);
-		}
+		const response = await signOut({
+			redirect: true,
+		});
+		toast.success("Logout successful");
 	};
-
 	return (
 		<li className="w-full">
 			<button

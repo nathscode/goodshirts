@@ -113,7 +113,7 @@ export function MobileSheet({ open, onOpenChange }: Props) {
 							data.map((category) => (
 								<li key={category.id} className="w-full">
 									<Link
-										href={`/product?category=${category.name}`}
+										href={`/products?category=${category.name}`}
 										className={cn(
 											"flex space-x-4 items-center py-3 px-4 font-medium w-full text-gray-700 transition-colors duration-200 hover:bg-slate-200",
 											pathname === `/product?category=${category.name}` &&

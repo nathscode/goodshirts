@@ -1,14 +1,15 @@
 "use server";
+
 import { eq, sql } from "drizzle-orm";
 import { unstable_noStore as noStore } from "next/cache";
 import { z } from "zod";
 import db from "../db";
 import {
-	OrderType,
 	orderItems,
 	orders,
 	products,
 	statusEnum,
+	productVariantPrices,
 } from "../db/schema";
 import { getLogger } from "../lib/backend/logger";
 import { orderUpdateSchema } from "../lib/validators/order";
@@ -19,7 +20,7 @@ const logger = getLogger();
 type OrderResponse = {
 	message: string;
 	status: string;
-	order?: OrderType;
+	order?: any;
 };
 
 export async function dashboardOrdersUpdate(
@@ -61,6 +62,7 @@ export async function dashboardOrdersUpdate(
 	try {
 		const typedStatus = status as (typeof statusEnum.enumValues)[number];
 
+		// Update Order Status
 		const [orderUpdated] = await db
 			.update(orderItems)
 			.set({ status: typedStatus })
@@ -70,13 +72,32 @@ export async function dashboardOrdersUpdate(
 		if (!orderUpdated) {
 			return { status: "error", message: "Failed to update order" };
 		}
+
+		// When the order is delivered, update stock and sales
 		if (typedStatus === "DELIVERED") {
-			await db
-				.update(products)
-				.set({
-					totalSales: sql`${products.totalSales} + 1`,
-				})
-				.where(eq(products.id, orderExist.productId!));
+			await db.transaction(async (tx) => {
+				// ✅ Update product totalSales
+				await tx
+					.update(products)
+					.set({
+						totalSales: sql`${products.totalSales} + ${orderUpdated.quantity}`,
+					})
+					.where(eq(products.id, orderExist.productId!));
+
+				// ✅ Update product variant stockQuantity
+				await tx
+					.update(productVariantPrices)
+					.set({
+						stockQuantity: sql`
+							CASE 
+								WHEN ${productVariantPrices.stockQuantity} >= ${orderUpdated.quantity} 
+								THEN ${productVariantPrices.stockQuantity} - ${orderUpdated.quantity} 
+								ELSE 0 
+							END
+						`,
+					})
+					.where(eq(productVariantPrices.id, orderExist.sizeId!));
+			});
 		}
 
 		return {

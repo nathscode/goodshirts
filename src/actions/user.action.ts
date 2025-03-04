@@ -1,5 +1,5 @@
 "use server";
-import { signIn, signOut } from "@/auth";
+import { signIn, signOut } from "@/auth.action";
 import { Users, users } from "@/src/db/schema";
 import { LoginSchema } from "@/src/lib/validators/auth";
 import { eq } from "drizzle-orm";

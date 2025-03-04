@@ -218,7 +218,7 @@ export const products = pgTable("products", {
 		precision: 10,
 		scale: 2,
 	}).notNull(),
-	stockQuantity: integer("stock_quantity").default(0),
+	stockQuantity: integer("stock_quantity").default(1),
 	categoryId: cuid2("category_id").references(() => categories.id),
 	subCategoryId: cuid2("sub_category_id").references(() => subCategories.id),
 	sku: varchar("sku", { length: 50 }).notNull().unique(),
@@ -255,7 +255,7 @@ export const productVariantPrices = pgTable("product_variant_prices", {
 	size: varchar("size", { length: 20 }).notNull(),
 	price: decimal("price", { precision: 10, scale: 2 }).notNull(),
 	discountPrice: decimal("discount_price", { precision: 10, scale: 2 }),
-	stockQuantity: integer("stock_quantity").default(0),
+	stockQuantity: integer("stock_quantity").default(1),
 	available: boolean("available").default(true),
 });
 // Product images table
@@ -297,7 +297,9 @@ export const orders = pgTable("orders", {
 	total: decimal("total", { precision: 10, scale: 2 }).notNull(),
 	grandTotal: decimal("grand_total", { precision: 10, scale: 2 }).notNull(),
 	shippingFee: decimal("shipping_fee", { precision: 10, scale: 2 }).notNull(),
-	shippingAddress: cuid2("address_id").references(() => addressTable.id),
+	shippingAddress: cuid2("address_id").references(() => addressTable.id, {
+		onDelete: "set null",
+	}),
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),

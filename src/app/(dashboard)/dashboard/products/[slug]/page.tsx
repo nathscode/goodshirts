@@ -39,7 +39,7 @@ const ProductDashboardDetails = async ({ params }: { params: IParams }) => {
 						columns={VariantColumns}
 						//@ts-ignore
 						data={product.variants}
-						searchKey="colors"
+						searchKey="color"
 					/>
 				</div>
 			</div>

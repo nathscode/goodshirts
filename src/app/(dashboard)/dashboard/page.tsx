@@ -1,18 +1,19 @@
-import checkIsAdmin from "@/src/actions/checkIsAdmin";
+import { getMonthlySales } from "@/src/actions/getMothlySales";
+import { getTopCategories } from "@/src/actions/topCategories";
 import MetricBox from "@/src/components/dashboard/MetricBox";
-import { Banknote, BoxesIcon, Tag, Users2 } from "lucide-react";
-import { redirect } from "next/navigation";
+import { TopCategories } from "@/src/components/dashboard/TopCategories";
+import { TopSellingBarChart } from "@/src/components/dashboard/TopSellingBarChart";
+import TopSellingProductTable from "@/src/components/dashboard/TopSellingProductTable";
+import db from "@/src/db";
 import { orders, products, users } from "@/src/db/schema";
 import { eq, sql } from "drizzle-orm";
-import db from "@/src/db";
+import { Banknote, BoxesIcon, Tag, Users2 } from "lucide-react";
 
 type Props = {};
 
 const OverviewPage = async (props: Props) => {
-	const isAdmin = await checkIsAdmin();
-	if (!isAdmin) {
-		return redirect("/");
-	}
+	const categories = await getTopCategories();
+	const salesData = await getMonthlySales();
 	const [totalOrders, totalRevenue, totalProducts, totalCustomers] =
 		await Promise.all([
 			db.select({ count: sql`COUNT(*)` }).from(orders),
@@ -56,13 +57,17 @@ const OverviewPage = async (props: Props) => {
 			</section>
 			<div className="flex flex-wrap w-full justify-start mt-5">
 				<div className="w-full md:w-3/4 md:pr-5">
-					<div className="flex flex-col flex-1 w-full bg-slate-50 shadow-md h-[400px]"></div>
+					<div className="flex flex-col flex-1 size-full bg-slate-50 shadow-md">
+						<TopSellingBarChart salesData={salesData} />
+					</div>
 				</div>
 				<div className="w-full md:w-1/4">
-					<div className="flex flex-col flex-1 w-full bg-slate-50 shadow-md h-[200px]"></div>
+					<div className="flex flex-col flex-1 size-full bg-slate-50 shadow-md">
+						<TopCategories categories={categories} />
+					</div>
 				</div>
 			</div>
-			<section className="flex flex-col w-full bg-slate-50 shadow-md p-4 mt-5"></section>
+			<TopSellingProductTable />
 		</div>
 	);
 };

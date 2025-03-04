@@ -29,9 +29,9 @@ export const ProductColumns: ColumnDef<ProductType>[] = [
 		cell: ({ row }) => row.original.sku,
 	},
 	{
-		accessorKey: "price",
-		header: "Price",
-		cell: ({ row }) => row.original.basePrice,
+		accessorKey: "totalSales",
+		header: "Total Sales",
+		cell: ({ row }) => row.original.totalSales,
 	},
 	{
 		id: "actions",

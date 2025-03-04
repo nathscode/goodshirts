@@ -1,13 +1,10 @@
 "use client";
 import { ProductWithExtra } from "@/src/db/schema";
-import { baseURL } from "@/src/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link";
 import ProductCard from "../card/ProductCard";
 import ProductSkeleton from "../skeleton/ProductSkeleton";
-import ProductCardFake from "../card/ProductCardFake";
-import { useMediaQuery } from "usehooks-ts";
 
 const HomeProductContent = () => {
 	const fetchRecentProducts = async () => {

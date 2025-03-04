@@ -3,15 +3,9 @@ import DashboardNavBar from "@/src/components/DashboardNavBar";
 import { AppSidebar } from "@/src/components/sidebar";
 import { useSidebarStore } from "@/src/hooks/use-sidebar";
 import { useStore } from "zustand";
-import { useSession } from "next-auth/react";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 	const { isSidebarOpen } = useStore(useSidebarStore);
-	// const { data: session } = useSession();
-
-	// if (session?.user.type !== "ADMIN") {
-	// 	return (window.location.href = "/");
-	// }
 	return (
 		<div className="min-h-screen bg-slate-100 w-full relative overflow-hidden">
 			<aside

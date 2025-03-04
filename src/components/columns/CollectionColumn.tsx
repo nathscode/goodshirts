@@ -2,6 +2,7 @@
 import { CollectionWithExtra } from "@/src/db/schema";
 import { formatDate } from "@/src/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
+import { CollectionActionRow } from "../table/CollectionActionRow";
 
 export const CollectionColumns: ColumnDef<CollectionWithExtra>[] = [
 	{
@@ -22,7 +23,19 @@ export const CollectionColumns: ColumnDef<CollectionWithExtra>[] = [
 	{
 		accessorKey: "isActive",
 		header: "Active",
-		cell: ({ row }) => <span>{row.original.isActive ? "Yes" : "No"}</span>,
+		cell: ({ row }) => (
+			<span>
+				{row.original.isActive ? (
+					<span className="px-2 py-1 bg-green-500 text-green-50 font-semibold  rounded-sm">
+						Active
+					</span>
+				) : (
+					<span className="px-2 py-1 bg-red-500 text-red-50  font-semibold rounded-sm">
+						Inactive
+					</span>
+				)}
+			</span>
+		),
 	},
 	{
 		accessorKey: "startDate",
@@ -52,5 +65,10 @@ export const CollectionColumns: ColumnDef<CollectionWithExtra>[] = [
 		cell: ({ row }) => (
 			<span>{formatDate(row.original.createdAt.toString())}</span>
 		),
+	},
+	{
+		id: "actions",
+		header: "Actions",
+		cell: ({ row }) => <CollectionActionRow row={row} />,
 	},
 ];

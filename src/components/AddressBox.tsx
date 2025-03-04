@@ -1,28 +1,13 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import { AddressType } from "../db/schema";
 import AddressForm from "./form/AddressForm";
-import { getUserAddressById } from "../actions/address.action";
 
 type Props = {
-	id: string;
+	address: AddressType | null;
 };
 
-const AddressBox = ({ id }: Props) => {
-	const getAddresses = async () => {
-		const response = await getUserAddressById(id);
-		return response;
-	};
-	const { isPending, error, data } = useQuery({
-		queryKey: ["addresses"],
-		queryFn: getAddresses,
-	});
-
-	if (isPending) return <p>Loading...</p>;
-
-	if (error) return "An error has occurred: " + error.message;
-
-	if (!data) {
+const AddressBox = ({ address }: Props) => {
+	if (!address || address === null) {
 		return (
 			<div className="flex flex-col items-center justify-center space-y-3 max-w-3xl lg:max-w-4xl mx-auto pb-20">
 				<p className="font-semibold text-sm text-neutral-400">
@@ -44,12 +29,12 @@ const AddressBox = ({ id }: Props) => {
 					Default Shipping Address
 				</p>
 				<p className="text-sm capitalize text-gray-500 mt-1">
-					{`${data?.fullName}`}
+					{`${address?.fullName}`}
 					<br />
-					{`${data?.addressLine1}, ${data?.city}`}, <br />
-					{data?.state} State.
+					{`${address?.addressLine1}, ${address?.city}`}, <br />
+					{address?.state} State.
 					<br />
-					{data?.phoneNumber}
+					{address?.phoneNumber}
 				</p>
 			</div>
 		</div>

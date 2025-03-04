@@ -115,7 +115,7 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 						<h2 className="text-lg font-bold uppercase my-2">
 							Shipping information
 						</h2>
-						<p className="text-sm text-gray-500">
+						<div className="text-sm text-gray-500">
 							<p className="text-sm capitalize text-gray-500 mt-1">
 								{`${order.address?.fullName}`}
 								<br />
@@ -125,7 +125,7 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 								<br />
 								{order.address?.phoneNumber}
 							</p>
-						</p>
+						</div>
 					</div>
 				</div>
 			</div>

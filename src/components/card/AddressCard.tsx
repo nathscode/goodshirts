@@ -1,7 +1,10 @@
+"use client";
+
 import { Edit2, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { AddressType } from "@/src/db/schema";
-import DeliveryAddress from "../DeliveryAddress";
+import AddressActionItem from "../common/AddressActionItem";
+import AddressForm from "../form/AddressForm";
 
 type Props = {
 	address: AddressType;
@@ -16,7 +19,9 @@ const AddressCard = ({ address }: Props) => {
 				</div>
 				<div className="flex flex-col p-4">
 					<p className="text-sm capitalize font-semibold">
-						Default Shipping Address
+						{address.isDefault
+							? "Default Shipping Address"
+							: "Shipping Address"}
 					</p>
 					<p className="text-sm capitalize text-gray-500 mt-1">
 						{`${address?.fullName}`}
@@ -29,20 +34,19 @@ const AddressCard = ({ address }: Props) => {
 				</div>
 				<div className="flex flex-col border-t p-2">
 					<div className="flex justify-between items-center w-full">
-						<div className="justify-start">
-							<Button variant={"ghost"} className="font-semibold">
-								Set as default
-							</Button>
-						</div>
-						<div className="justify-end">
-							<div className="flex justify-start space-x-1">
-								<Button variant={"ghost"}>
-									<Edit2 className="size-4" />
-								</Button>
-								<Button variant={"ghost"}>
-									<Trash2 className="size-4 text-red-500" />
-								</Button>
+						{/* Toggle Default Button */}
+						<AddressActionItem
+							option="toggleDefault"
+							id={address.id}
+							isDefault={address.isDefault!}
+						/>
+
+						{/* Edit & Delete Buttons */}
+						<div className="flex space-x-1">
+							<div>
+								<AddressForm initialData={address} />
 							</div>
+							<AddressActionItem option="delete" id={address.id} />
 						</div>
 					</div>
 				</div>

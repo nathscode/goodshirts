@@ -32,8 +32,13 @@ const ProductVariants = ({
 		);
 		if (newVariant) {
 			onVariantChange(newVariant);
-			// Automatically select the first size of the new variant
-			onSizeChange(newVariant.variantPrices[0]);
+			// Automatically select the first available size of the new variant
+			const availableSize = newVariant.variantPrices.find(
+				(size) => size.stockQuantity! > 0
+			);
+			if (availableSize) {
+				onSizeChange(availableSize);
+			}
 		}
 	};
 
@@ -42,7 +47,7 @@ const ProductVariants = ({
 		const newSize = selectedVariant.variantPrices.find(
 			(s) => s.size === sizeValue
 		);
-		if (newSize) {
+		if (newSize && newSize.stockQuantity! > 0) {
 			onSizeChange(newSize);
 		}
 	};
@@ -64,21 +69,30 @@ const ProductVariants = ({
 					onValueChange={handleColorChange}
 				>
 					<div className="flex flex-wrap items-center gap-4">
-						{product.variants.map((variant) => (
-							<div key={variant.id}>
-								<RadioGroupItem
-									className="peer sr-only"
-									value={variant.color}
-									id={variant.color}
-								/>
-								<Label
-									htmlFor={variant.color}
-									className="flex items-center justify-between capitalize rounded-md border-2 border-gray-200 bg-popover p-4 hover:border-gray-200 hover:cursor-pointer hover:text-black peer-data-[state=checked]:border-black [&:has([data-state=checked])]:border-primary"
-								>
-									{variant.color}
-								</Label>
-							</div>
-						))}
+						{product.variants.map((variant) => {
+							const isOutOfStock = variant.variantPrices.every(
+								(size) => size.stockQuantity === 0
+							);
+							return (
+								<div key={variant.id}>
+									<RadioGroupItem
+										className="peer sr-only"
+										value={variant.color}
+										id={variant.color}
+										disabled={isOutOfStock} // ✅ Disable if all sizes are out of stock
+										aria-disabled={isOutOfStock}
+									/>
+									<Label
+										htmlFor={variant.color}
+										className={`flex items-center justify-between capitalize rounded-md border-2 border-gray-200 bg-popover p-4 hover:border-gray-200 hover:cursor-pointer hover:text-black peer-data-[state=checked]:border-black [&:has([data-state=checked])]:border-primary ${
+											isOutOfStock ? "opacity-50 cursor-not-allowed" : ""
+										}`}
+									>
+										{variant.color}
+									</Label>
+								</div>
+							);
+						})}
 					</div>
 				</RadioGroup>
 			</div>
@@ -92,21 +106,28 @@ const ProductVariants = ({
 				>
 					<div className="flex items-center flex-wrap gap-4">
 						{selectedVariant.variantPrices.length > 0 ? (
-							selectedVariant.variantPrices.map((size) => (
-								<div key={size.id}>
-									<RadioGroupItem
-										className="peer sr-only"
-										value={size.size}
-										id={size.size}
-									/>
-									<Label
-										htmlFor={size.size}
-										className="flex items-center justify-between capitalize rounded-md border-2 border-gray-200 bg-popover p-4 hover:border-gray-200 hover:cursor-pointer hover:text-black peer-data-[state=checked]:border-black [&:has([data-state=checked])]:border-primary"
-									>
-										{size.size}
-									</Label>
-								</div>
-							))
+							selectedVariant.variantPrices.map((size) => {
+								const isOutOfStock = size.stockQuantity === 0;
+								return (
+									<div key={size.id}>
+										<RadioGroupItem
+											className="peer sr-only"
+											value={size.size}
+											id={size.size}
+											disabled={isOutOfStock}
+											aria-disabled={isOutOfStock}
+										/>
+										<Label
+											htmlFor={size.size}
+											className={`flex items-center justify-between capitalize rounded-md border-2 border-gray-200 bg-popover p-4 hover:border-gray-200 hover:cursor-pointer hover:text-black peer-data-[state=checked]:border-black [&:has([data-state=checked])]:border-primary ${
+												isOutOfStock ? "opacity-50 cursor-not-allowed" : ""
+											}`}
+										>
+											{size.size}
+										</Label>
+									</div>
+								);
+							})
 						) : (
 							<div>No sizes available for this color</div>
 						)}

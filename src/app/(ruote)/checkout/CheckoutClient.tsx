@@ -1,4 +1,7 @@
 "use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import ShippingAddress from "@/src/components/ShippingAddress";
 import ShippingSection from "@/src/components/ShippingSection";
 import ReviewCartCard from "@/src/components/card/ReviewCartCard";
@@ -15,8 +18,17 @@ type Props = {
 
 const CheckoutClient = ({ addresses }: Props) => {
 	const { cartItems, total, totalPrice, shippingFee } = useCartStore();
+	const router = useRouter();
+
+	useEffect(() => {
+		if (!cartItems || cartItems.length === 0) {
+			router.replace("/products");
+		}
+	}, [cartItems, router]);
+
 	let subTotal = roundNumber(total);
 	let grandTotal = roundNumber(totalPrice);
+
 	return (
 		<div className="flex flex-col w-full">
 			<div className="flex flex-wrap justify-between w-full mt-4">
@@ -28,35 +40,31 @@ const CheckoutClient = ({ addresses }: Props) => {
 					<div className="flex flex-col h-full w-full relative">
 						<h2 className="text-lg font-bold">Review your Cart</h2>
 						<div className="flex flex-col w-full my-2">
-							<ScrollArea className="h-[200px]">
-								{cartItems && cartItems.length > 0 ? (
-									cartItems.map((cartItem, index) => (
-										<ReviewCartCard
-											key={index}
-											item={cartItem.item}
-											variant={cartItem.variant}
-											size={cartItem.size}
-											quantity={cartItem.quantity}
-										/>
-									))
-								) : (
-									<div>Add Product</div>
-								)}
+							<ScrollArea className="max-h-[250px] overflow-y-auto">
+								{cartItems.map((cartItem, index) => (
+									<ReviewCartCard
+										key={index}
+										item={cartItem.item}
+										variant={cartItem.variant}
+										size={cartItem.size}
+										quantity={cartItem.quantity}
+									/>
+								))}
 							</ScrollArea>
 						</div>
-						<div className="absolute bottom-1 w-full justify-end">
-							<div className="flex flex-col w-full my-4">
+						{/* Bottom Fixed Section */}
+						<div className="sticky bottom-0 bg-white shadow-lg border-t w-full p-4">
+							<div className="flex flex-col w-full">
 								<h4 className="uppercase font-bold">Cart Total</h4>
-								<ul className="flex flex-col w-full my-2">
+								<ul className="flex flex-col my-2">
 									<li className="inline-flex items-center justify-between w-full text-base py-1">
-										<span className="text-zinc-500">Subtotal</span>
+										<strong className="text-zinc-500">Subtotal</strong>
 										<span>{formatCurrency(subTotal.toString())}</span>
 									</li>
 
 									<li className="inline-flex items-center justify-between w-full text-base py-1">
-										<span className="text-zinc-500">Shipping</span>
+										<strong className="text-zinc-500">Shipping</strong>
 										<span>
-											{" "}
 											{shippingFee > 0
 												? formatCurrency(shippingFee.toString())
 												: "Free"}
@@ -71,8 +79,8 @@ const CheckoutClient = ({ addresses }: Props) => {
 								</ul>
 								<div className="flex flex-col mt-5">
 									<Button
-										className="uppercase inline-flex text-sm rounded-none font-semibold px-8 "
 										asChild
+										className="uppercase inline-flex text-sm rounded-none font-semibold px-8"
 									>
 										<Link href={"/checkout/pay"}>Pay Now</Link>
 									</Button>

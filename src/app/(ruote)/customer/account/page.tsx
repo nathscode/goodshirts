@@ -1,12 +1,14 @@
-import { auth } from "@/auth";
+import { getUserAddress } from "@/src/actions/address.action";
 import getCurrentUser from "@/src/actions/getCurrentUser";
 import AddressBox from "@/src/components/AddressBox";
 import BackButton from "@/src/components/common/BackButton";
+import Link from "next/link";
 
 type Props = {};
 
 const CustomerAccountPage = async (props: Props) => {
 	const session = await getCurrentUser();
+	const address = await getUserAddress();
 	return (
 		<div className="flex h-screen flex-col justify-start  w-full">
 			<div className="flex flex-col flex-1 w-full bg-slate-50 p-3">
@@ -25,7 +27,7 @@ const CustomerAccountPage = async (props: Props) => {
 								</h1>
 							</div>
 							<div className="flex flex-col p-4">
-								<p className="text-sm capitalize">{`${session?.firstName} ${session?.lastName}`}</p>
+								<div className="text-sm capitalize">{`${session?.firstName} ${session?.lastName}`}</div>
 								<p className="text-sm capitalize text-gray-500 mt-1">
 									{`${session?.email}`}
 								</p>
@@ -33,9 +35,16 @@ const CustomerAccountPage = async (props: Props) => {
 						</div>
 					</div>
 					<div className="w-full md:w-1/2  md:pr-5 mb-5 md:mb-0">
-						<AddressBox id={session?.id!} />
+						<AddressBox address={address} />
 					</div>
 				</div>
+				{session && session.type === "ADMIN" ? (
+					<div className="flex flex-col w-fit mt-5">
+						<Link href={"/dashboard"} className="button text-xs font-semibold">
+							Visit Admin Page
+						</Link>
+					</div>
+				) : null}
 			</div>
 		</div>
 	);

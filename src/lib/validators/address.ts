@@ -12,6 +12,7 @@ export const AddressSchema = z.object({
 	}),
 	address: z.string().min(1, { message: "your address is required" }),
 	postalCode: z.string().optional(),
+	addressId: z.string().optional(),
 });
 
 export type AddressSchemaInfer = z.infer<typeof AddressSchema>;

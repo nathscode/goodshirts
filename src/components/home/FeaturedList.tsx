@@ -2,10 +2,9 @@
 import getAllFeaturedProducts from "@/src/actions/getAllFeaturedProducts";
 import { ProductWithExtra } from "@/src/db/schema";
 import { useQuery } from "@tanstack/react-query";
-import ProductSkeleton from "../skeleton/ProductSkeleton";
 import FeaturedProductCard from "../card/FeaturedProductCard";
 import Carousel from "../common/Carousel";
-import FeaturedProductCardFake from "../card/FeaturedProductCardFake";
+import ProductSkeleton from "../skeleton/ProductSkeleton";
 
 type Props = {};
 

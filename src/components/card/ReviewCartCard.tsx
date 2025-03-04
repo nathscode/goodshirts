@@ -14,7 +14,7 @@ const ReviewCartCard = ({ item, variant, size, quantity }: Props) => {
 	return (
 		<div className="flex flex-col w-full">
 			<div className="flex flex-row mb-2 min-h-[100px] p-2 rounded-lg">
-				<div className="relative shrink-0 w-[50px] sm:w-[80px] h-[80px] overflow-hidden bg-slate-300 rounded-md">
+				<div className="relative shrink-0 w-[80px] h-[80px] overflow-hidden bg-slate-300 rounded-md">
 					<Image
 						className="object-cover w-full h-full rounded-md"
 						src={item.media[0].url ?? "/images/placeholder-image.png"}
@@ -24,7 +24,9 @@ const ReviewCartCard = ({ item, variant, size, quantity }: Props) => {
 				</div>
 				<div className="flex flex-col ml-5 w-full">
 					<div className="flex flex-col justify-start w-full">
-						<h4 className="text-xs font-bold capitalize">{item.name}</h4>
+						<h4 className="text-xs font-bold capitalize line-clamp-1">
+							{item.name}
+						</h4>
 					</div>
 
 					<div className="flex justify-start items-center space-x-4 text-sm text-gray-500">

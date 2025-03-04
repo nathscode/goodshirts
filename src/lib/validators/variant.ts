@@ -16,6 +16,7 @@ export const productVariantPriceSchema = z.object({
 		.nonnegative("Stock quantity must be a non-negative integer")
 		.default(0),
 	available: z.boolean().default(true),
+	sizeId: z.string().optional(),
 });
 
 // Define the schema for the product variant
@@ -34,6 +35,9 @@ export const variantSchema = z.object({
 });
 
 export type variantSchemaInfer = z.infer<typeof variantSchema>;
+export type productVariantPriceSchemaInfer = z.infer<
+	typeof productVariantPriceSchema
+>;
 // price: z.union([z.string(), z.number()]).transform((val) => String(val)),
 // discountPrice: z
 // 	.union([z.string(), z.number()])

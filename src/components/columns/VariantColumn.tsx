@@ -4,6 +4,7 @@ import { VariantsWithExtra } from "@/src/db/schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { VariantRowActions } from "../table/VariantActionRow";
 import { formatCurrency } from "@/src/lib/utils";
+import VariantEditForm from "../form/VariantEditForm";
 
 export const VariantColumns: ColumnDef<VariantsWithExtra>[] = [
 	{
@@ -38,8 +39,43 @@ export const VariantColumns: ColumnDef<VariantsWithExtra>[] = [
 		},
 	},
 	{
+		accessorKey: "stock", // Correct accessor
+		header: "Stock",
+		cell: ({ row }) => {
+			const variantPrices = row.original.variantPrices || [];
+
+			// Map through the variantPrices and format the display
+			return variantPrices.length > 0 ? (
+				<div className="space-y-1">
+					{variantPrices.map((sub, index) => (
+						<div key={index}>
+							<span className="font-medium">{sub.stockQuantity}</span>{" "}
+						</div>
+					))}
+				</div>
+			) : (
+				"No Sizes"
+			);
+		},
+	},
+	{
 		id: "actions",
 		header: "Actions",
-		cell: ({ row }) => <VariantRowActions row={row} />,
+		cell: ({ row }) => {
+			const variantPrices = row.original.variantPrices || [];
+
+			return variantPrices.length > 0 ? (
+				<div className="space-y-1">
+					{variantPrices.map((sub, index) => (
+						<div key={index}>
+							<VariantEditForm id={sub.id} />{" "}
+							{/* Pass the correct variant ID */}
+						</div>
+					))}
+				</div>
+			) : (
+				"No Sizes"
+			);
+		},
 	},
 ];

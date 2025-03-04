@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useCartStore from "@/src/hooks/use-cart";
@@ -15,10 +16,6 @@ import { formatCurrency, roundNumber } from "@/src/lib/utils";
 type Props = { email: string };
 
 const PaymentClient = ({ email }: Props) => {
-	const [isLoading, setIsLoading] = useState(false);
-	const [showModal, setShowModal] = useState(false);
-	const router = useRouter();
-
 	const {
 		cartItems,
 		total,
@@ -27,8 +24,16 @@ const PaymentClient = ({ email }: Props) => {
 		selectedAddress,
 		clearCart,
 	} = useCartStore();
+	const [isLoading, setIsLoading] = useState(false);
+	const [showModal, setShowModal] = useState(false);
+	const [hasCompletedOrder, setHasCompletedOrder] = useState(false);
+	const router = useRouter();
 
-	// ✅ Redirect inside useEffect instead of returning void
+	useEffect(() => {
+		if (!cartItems || cartItems.length === 0) {
+			if (!hasCompletedOrder) router.replace("/products");
+		}
+	}, [cartItems, hasCompletedOrder, router]);
 
 	let subTotal = roundNumber(total);
 	let grandTotal = roundNumber(totalPrice);
@@ -43,6 +48,7 @@ const PaymentClient = ({ email }: Props) => {
 			if (data.success) {
 				toast.success("Order Successful");
 				setShowModal(true);
+				setHasCompletedOrder(true); // ✅ Mark order as completed
 				clearCart();
 			} else {
 				throw new Error(data.message);
@@ -55,6 +61,11 @@ const PaymentClient = ({ email }: Props) => {
 			setIsLoading(false);
 		},
 	});
+
+	const handleCloseModal = () => {
+		setShowModal(false);
+		setHasCompletedOrder(false);
+	};
 
 	const handlePaystackSuccessAction = (reference: any) => {
 		onSubmitFormData(reference);
@@ -102,6 +113,7 @@ const PaymentClient = ({ email }: Props) => {
 		publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
 		metadata,
 	};
+
 	const componentProps = {
 		...config,
 		text: "Pay Now",
@@ -162,7 +174,7 @@ const PaymentClient = ({ email }: Props) => {
 					<Loader2 size={16} className="animate-spin" />
 				</div>
 			)}
-			{showModal && <SuccessModal />}
+			{showModal && <SuccessModal onClose={handleCloseModal} />}
 		</div>
 	);
 };

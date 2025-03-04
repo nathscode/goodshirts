@@ -10,7 +10,6 @@ type Props = {};
 
 const CheckoutPage = async (props: Props) => {
 	const session = await getCurrentUser();
-	if (!session) return redirect("/login");
 	const addresses = await getAllUserAddressById();
 	return (
 		<MaxWidthWrapper>

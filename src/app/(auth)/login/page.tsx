@@ -10,10 +10,6 @@ export const metadata: Metadata = {
 };
 
 const LoginPage = async () => {
-	const session = await getCurrentUser();
-	if (session) {
-		return redirect("/customer/account");
-	}
 	return (
 		<div className="bg-slate-100 min-h-screen py-10">
 			<div className="flex justify-center items-center flex-col w-full">
