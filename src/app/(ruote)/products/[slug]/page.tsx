@@ -1,14 +1,13 @@
-import React from "react";
-import { Metadata } from "next";
-import ProductClient from "./ProductClient";
-import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
-import { BreadcrumbTypes } from "@/src/types";
-import BreadCrumbs from "@/src/components/common/BreadCrumbs";
-import { redirect } from "next/navigation";
 import fetchProductBySlug from "@/src/actions/fetchProductBySlug";
 import NotFound from "@/src/app/not-found";
+import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
+import BreadCrumbs from "@/src/components/common/BreadCrumbs";
 import { ProductWithExtra } from "@/src/db/schema";
 import { toTitleCase } from "@/src/lib/utils";
+import { BreadcrumbTypes } from "@/src/types";
+import { Metadata } from "next";
+import { redirect } from "next/navigation";
+import ProductClient from "./ProductClient";
 
 interface IParams {
 	slug?: string;
@@ -19,9 +18,8 @@ export const generateMetadata = async ({
 }: {
 	params: IParams;
 }): Promise<Metadata> => {
-	const product: ProductWithExtra | null = await fetchProductBySlug(
-		params.slug!
-	);
+	const { slug } = await params;
+	const product: ProductWithExtra | null = await fetchProductBySlug(slug!);
 	let urlImage = "";
 	if (product?.medias && product.medias.length > 0) {
 		urlImage = product.medias[0].url;
@@ -53,6 +51,7 @@ const ProductDetailPage = async ({
 	const { slug } = await params;
 	if (!slug) return redirect("/");
 	const product = await fetchProductBySlug(slug);
+
 	if (!product) return <NotFound />;
 
 	const lists: BreadcrumbTypes[] = [

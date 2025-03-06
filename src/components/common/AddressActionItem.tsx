@@ -32,7 +32,7 @@ const AddressActionItem: React.FC<AddressActionItemProps> = ({
 	isDefault,
 }) => {
 	const mutationFn =
-		option === "delete" ? deleteUserAddress : () => setDefaultAddress(id); // Use a wrapper function to ensure correct execution
+		option === "delete" ? deleteUserAddress : () => setDefaultAddress(id);
 
 	const buttonText =
 		option === "delete"

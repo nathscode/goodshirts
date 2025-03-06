@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 			);
 		}
 
-		// Check if the product variant + size combo is already saved
+		// Check if the product is already saved
 		const isSaved = await db
 			.select()
 			.from(savedProducts)
@@ -60,8 +60,10 @@ export async function POST(req: NextRequest) {
 			)
 			.execute();
 
+		let isSavedByUser: boolean;
+		let message: string;
+
 		if (isSaved.length > 0) {
-			// Unsave the product
 			await db
 				.delete(savedProducts)
 				.where(
@@ -71,26 +73,27 @@ export async function POST(req: NextRequest) {
 						eq(savedProducts.variantId, variantId),
 						eq(savedProducts.sizeId, sizeId)
 					)
-				);
+				)
+				.execute();
 
-			revalidatePath(`/product/${productId}`);
-			return Response.json(
-				{ status: "success", message: "Product Unsaved" },
-				{ status: 200 }
-			);
+			isSavedByUser = false;
+			message = "Product Unsaved";
+		} else {
+			await db.insert(savedProducts).values({
+				productId,
+				userId,
+				variantId,
+				sizeId,
+			});
+
+			isSavedByUser = true;
+			message = "Product Saved";
 		}
 
-		// Save the product with variant and size
-		await db.insert(savedProducts).values({
-			productId,
-			userId,
-			variantId,
-			sizeId,
-		});
+		revalidatePath(`/product/s${productExists[0].slug}`);
 
-		revalidatePath(`/product/${productId}`);
 		return Response.json(
-			{ status: "success", message: "Product Saved" },
+			{ status: "success", message, isSavedByUser },
 			{ status: 200 }
 		);
 	} catch (error) {

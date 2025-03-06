@@ -70,6 +70,11 @@ export type ProductTypes = {
 	category: string;
 };
 
+export interface ActionResponse<T = any> {
+	message?: string;
+	status: "success" | "error";
+	data?: T;
+}
 export interface SavedInfo {
 	isSavedByUser: boolean;
 }

@@ -23,7 +23,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 				<div className="flex-1 overflow-y-auto h-full p-4 md:p-6 relative z-10">
 					<div className="relative min-h-full flex flex-col">
 						<DashboardNavBar />
-						<div className="h-full flex flex-col flex-1 space-y-4 bg-white rounded-lg">
+						<div className="h-full min-h-screen flex flex-col flex-1 space-y-4 bg-white rounded-lg">
 							{children}
 						</div>
 					</div>

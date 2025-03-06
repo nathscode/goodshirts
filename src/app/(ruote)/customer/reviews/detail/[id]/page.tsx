@@ -18,7 +18,7 @@ const ReviewDetailPage = async ({ params }: Props) => {
 	}
 	let lastName = user?.lastName;
 	return (
-		<div className="flex h-screen flex-col justify-start  w-full">
+		<div className="flex  flex-col justify-start  w-full">
 			<div className="flex flex-col flex-1 w-full bg-slate-50 p-3">
 				<div className="flex justify-start border-b py-2">
 					<div className="justify-start">

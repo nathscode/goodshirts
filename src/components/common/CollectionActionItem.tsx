@@ -16,7 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/src/components/ui/alert-dialog";
 import { useMutation } from "@tanstack/react-query";
-import { Loader2, Trash } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 
@@ -32,8 +32,7 @@ const CollectionActionItem: React.FC<CollectionActionItemProps> = ({
 	isActive: isActive,
 }) => {
 	const mutationFn =
-		option === "delete" ? deleteCollection : () => setActivateCollection(id); // Use a wrapper function to ensure correct execution
-
+		option === "delete" ? deleteCollection : () => setActivateCollection(id);
 	const buttonText =
 		option === "delete"
 			? "Delete Collection"

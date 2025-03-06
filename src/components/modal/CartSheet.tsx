@@ -22,10 +22,9 @@ export function CartSheet({ open, onOpenChange }: Props) {
 	const router = useRouter(); // Initialize router
 	const { cartItems } = useCartStore();
 
-	// Function to handle place order action
 	const handlePlaceOrder = () => {
-		onOpenChange(false); // Close the sheet
-		router.push("/products"); // Redirect to products page
+		onOpenChange(false);
+		router.push("/products");
 	};
 
 	return (

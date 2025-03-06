@@ -10,7 +10,7 @@ export default function Home() {
 		<>
 			<MaxWidthWrapper>
 				<div className="border-t border-b border-black py-4 mb-10 mx-auto text-center flex flex-col items-center w-full">
-					<h1 className="text-2xl font-bold uppercase tracking-tight text-gray-900 sm:text-5xl lg:text-6xl font-dela hidden sm:flex">
+					<h1 className="text-2xl font-bold uppercase tracking-tight text-gray-900 sm:text-5xl lg:text-6xl font-dela flex">
 						africagoodshirts
 					</h1>
 				</div>

@@ -12,12 +12,12 @@ export default function MainLayout({
 }) {
 	return (
 		<div>
-			<main className="relative flex flex-col min-h-screen">
+			<div className="h-full overflow-y-auto overflow-x-hidden">
 				<Navbar />
-				<div className="flex-grow flex-1">{children}</div>
+				<div className="min-h-screen flex-grow flex-1">{children}</div>
 				<ScrollUp />
 				<Footer />
-			</main>
+			</div>
 		</div>
 	);
 }

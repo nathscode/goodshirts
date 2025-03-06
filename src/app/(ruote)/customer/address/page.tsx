@@ -9,7 +9,7 @@ type Props = {};
 const CustomerAddressPage = async (props: Props) => {
 	const addresses = await getAllUserAddressById();
 	return (
-		<div className="flex h-screen flex-col justify-start  w-full">
+		<div className="flex min-h-screen flex-col w-full">
 			<div className="flex flex-col flex-1 w-full bg-slate-50 p-3">
 				<div className="flex justify-start border-b py-2">
 					<div className="justify-start sm:hidden">
@@ -17,11 +17,12 @@ const CustomerAddressPage = async (props: Props) => {
 					</div>
 					<h1 className="text-xl font-medium">Address</h1>
 				</div>
+
 				<div className="flex flex-col my-4">
 					{addresses && addresses.length > 0 ? (
-						<div className="flex justify-between flex-col space-y-2 md:flex-row w-full md:space-x-2 md:space-y-0">
+						<div className="flex flex-wrap justify-center md:justify-start w-full">
 							{addresses.map((address: any) => (
-								<div key={address.id} className="w-full md:w-1/2">
+								<div key={address.id} className="w-full md:w-1/2 p-2">
 									<AddressCard address={address} />
 								</div>
 							))}

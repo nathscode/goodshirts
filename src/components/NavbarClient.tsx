@@ -18,7 +18,7 @@ const NavbarClient = ({ session }: Props) => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isCartSheetOpen, setIsCartSheetOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
-	const [showMobileSearch, setShowMobileSearch] = useState(true);
+	const [showMobileSearch, setShowMobileSearch] = useState(false);
 
 	return (
 		<>

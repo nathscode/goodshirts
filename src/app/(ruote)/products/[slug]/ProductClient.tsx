@@ -21,12 +21,15 @@ import { ChangeEvent, useState } from "react";
 import useCartStore from "@/src/hooks/use-cart";
 import { CartProduct } from "@/src/types";
 import { toast } from "sonner";
+import SaveProductSection from "@/src/components/SaveProductSection";
+import { useSession } from "next-auth/react";
 
 type Props = {
 	product: ProductWithExtra;
 };
 
 const ProductClient = ({ product }: Props) => {
+	const { data: session } = useSession();
 	const [quantity, setQuantity] = useState<number>(1);
 	const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
 	const [selectedSize, setSelectedSize] = useState(
@@ -92,9 +95,21 @@ const ProductClient = ({ product }: Props) => {
 				</div>
 				<div className="w-full sm:w-1/2 sm:px-3 mt-8 sm:mt-0">
 					<div className="flex flex-col w-full relative">
-						<h1 className="text-xl sm:text-2xl capitalize font-semibold">
-							{product.name}
-						</h1>
+						<div className="flex justify-between">
+							<h1 className="text-xl sm:text-2xl capitalize font-semibold max-w-md pr-5">
+								{product.name}
+							</h1>
+							<SaveProductSection
+								productId={product.id}
+								variantId={product.variants[0].id}
+								sizeId={product.variants[0].variantPrices[0].id}
+								initialState={{
+									isSavedByUser: product.saved.some(
+										(save) => save.userId === session?.user.id
+									),
+								}}
+							/>
+						</div>
 						<ul className="flex flex-wrap justify-start items-center gap-4 my-3 w-full">
 							<li className="inline-flex space-x-2 items-center">
 								<Star className="size-4 fill-black" />

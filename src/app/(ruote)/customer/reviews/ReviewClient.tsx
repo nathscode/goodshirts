@@ -15,6 +15,7 @@ const ReviewClient = () => {
 		queryFn: getReviewProducts,
 	});
 
+	
 	if (isPending) {
 		return (
 			<div className="flex flex-col justify-start max-w-full gap-4 my-5">

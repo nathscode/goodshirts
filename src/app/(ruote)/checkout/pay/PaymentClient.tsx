@@ -48,7 +48,7 @@ const PaymentClient = ({ email }: Props) => {
 			if (data.success) {
 				toast.success("Order Successful");
 				setShowModal(true);
-				setHasCompletedOrder(true); // ✅ Mark order as completed
+				setHasCompletedOrder(true);
 				clearCart();
 			} else {
 				throw new Error(data.message);

@@ -10,14 +10,14 @@ const BreadCrumbs = ({ lists }: Props) => {
 	return (
 		<nav className="flex p-2 " aria-label="Breadcrumb">
 			<div className="container">
-				<ol className="inline-flex flex-wrap items-center w-full gap-y-2 md:gap-y-0 md:justify-end uppercase  space-x-1 md:space-x-2">
+				<ol className="inline-flex flex-wrap items-center w-full gap-y-2 md:gap-y-0 md:justify-end capitalize  space-x-1 md:space-x-2">
 					<li className="inline-flex items-center">
 						<Link
 							href="/"
-							className="inline-flex items-center text-[12px] font-medium text-gray-500 hover:text-brand"
+							className="inline-flex items-center text-[11px] font-medium text-gray-500 hover:text-brand"
 						>
 							<svg
-								className="w-3 h-3 me-2.5"
+								className="w-2 h-2 me-2.5"
 								aria-hidden="true"
 								xmlns="http://www.w3.org/2000/svg"
 								fill="currentColor"
@@ -33,7 +33,7 @@ const BreadCrumbs = ({ lists }: Props) => {
 							<li key={index}>
 								<div className="flex items-center">
 									<svg
-										className="rtl:rotate-180 w-2.5 h-2.5 text-brand mx-0.5"
+										className="rtl:rotate-180 w-2 h-2 text-black mx-0.5"
 										aria-hidden="true"
 										xmlns="http://www.w3.org/2000/svg"
 										fill="none"
@@ -50,12 +50,12 @@ const BreadCrumbs = ({ lists }: Props) => {
 									{list.hasLink ? (
 										<Link
 											href={list.href ?? "#"}
-											className="ms-1 text-[12px] font-medium text-gray-500 hover:underline md:ms-2 "
+											className="ms-1 text-[11px] font-medium text-gray-500 hover:underline md:ms-2 "
 										>
 											{list.name}
 										</Link>
 									) : (
-										<span className="ms-1 text-[12px] font-medium text-gray-500  md:ms-2 ">
+										<span className="ms-1 text-[11px] font-medium text-gray-500  md:ms-2 ">
 											{list.name}
 										</span>
 									)}

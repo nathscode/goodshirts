@@ -4,7 +4,7 @@ import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
 	return (
 		<MaxWidthWrapper>
-			<div className="flex max-lg:flex-col text-grey-1">
+			<div className="flex max-lg:flex-col">
 				<div className="hidden md:flex">
 					<CustomerSidebar />
 				</div>

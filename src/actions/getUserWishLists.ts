@@ -1,14 +1,17 @@
 "use server";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { unstable_noStore as noStore } from "next/cache";
 import db from "../db";
 import { SavedWithExtra, savedProducts } from "../db/schema";
 import { getLogger } from "../lib/backend/logger";
 import getCurrentUser from "./getCurrentUser";
+import { ActionResponse } from "../types";
 
 const logger = getLogger();
 
-export async function getUserWishLists(): Promise<SavedWithExtra[] | []> {
+export async function getUserWishLists(): Promise<
+	ActionResponse<SavedWithExtra[]>
+> {
 	noStore();
 
 	const session = await getCurrentUser();
@@ -17,6 +20,7 @@ export async function getUserWishLists(): Promise<SavedWithExtra[] | []> {
 	}
 	try {
 		const saved = await db.query.savedProducts.findMany({
+			where: eq(savedProducts.userId, session.id!),
 			orderBy: [desc(savedProducts.createdAt)],
 			with: {
 				product: {
@@ -29,9 +33,10 @@ export async function getUserWishLists(): Promise<SavedWithExtra[] | []> {
 			},
 		});
 
-		if (!saved) return [];
-		const plainSaved = JSON.parse(JSON.stringify(saved));
-		return plainSaved;
+		if (!saved)
+			return { message: "No saved items found", status: "error", data: [] };
+		// @ts-ignore
+		return { status: "success", data: saved! };
 	} catch (error) {
 		logger.error("Database Error:", error);
 		throw new Error("Failed to fetch Saved");

@@ -19,10 +19,12 @@ import {
 	User2,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { SiteLogo } from "../SiteLogo";
 import { Separator } from "../ui/separator";
 import CategoryMobileSkeleton from "../skeleton/CategoryMobileSkeleton";
+import LogoutButton from "../LogoutButton";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface Props {
 	open: boolean;
@@ -31,6 +33,13 @@ interface Props {
 
 export function MobileSheet({ open, onOpenChange }: Props) {
 	const pathname = usePathname();
+	const router = useRouter();
+	const handleLinkClick = (href: string) => {
+		onOpenChange(false);
+		router.push(href);
+	};
+
+	// Fet
 
 	// Fetch categories using React Query
 	const { isPending, error, data } = useQuery({
@@ -51,6 +60,7 @@ export function MobileSheet({ open, onOpenChange }: Props) {
 							aria-label="africagoodshirts"
 							title="africagoodshirts"
 							className="inline-flex items-center lg:mx-auto"
+							onClick={() => handleLinkClick("/")}
 						>
 							<SiteLogo />
 						</Link>
@@ -68,7 +78,11 @@ export function MobileSheet({ open, onOpenChange }: Props) {
 							{ href: "/customer/orders", label: "Orders", icon: BoxIcon },
 							{ href: "/customer/reviews", label: "Reviews", icon: Edit2 },
 							{ href: "/customer/saved", label: "Saved", icon: Heart },
-							{ href: "/customer/address", label: "Address", icon: MapPinIcon },
+							{
+								href: "/customer/address",
+								label: "Address",
+								icon: MapPinIcon,
+							},
 						].map(({ href, label, icon: Icon }) => (
 							<li key={href} className="w-full">
 								<Link
@@ -77,6 +91,7 @@ export function MobileSheet({ open, onOpenChange }: Props) {
 										"flex space-x-4 items-center py-3 px-4 font-medium w-full text-gray-700 transition-colors duration-200 hover:bg-slate-200",
 										pathname === href && "bg-slate-300"
 									)}
+									onClick={() => handleLinkClick(href)}
 								>
 									<Icon className="size-5" />
 									<span className="font-medium">{label}</span>
@@ -98,39 +113,48 @@ export function MobileSheet({ open, onOpenChange }: Props) {
 						</Link>
 					</div>
 					<ul className="size-full flex flex-col text-[13px]">
-						{isPending ? (
-							// Loading skeleton wrapped in a flex container
-							<div className="flex flex-col space-y-4">
-								{[...Array(4)].map((_, i) => (
-									<li key={i} className="w-full px-4">
-										<CategoryMobileSkeleton />
+						<ScrollArea className="max-h-[400px] w-full">
+							{isPending ? (
+								// Loading skeleton wrapped in a flex container
+								<div className="flex flex-col space-y-4">
+									{[...Array(4)].map((_, i) => (
+										<li key={i} className="w-full px-4">
+											<CategoryMobileSkeleton />
+										</li>
+									))}
+								</div>
+							) : error ? (
+								<li className="text-red-500 px-4">Failed to load categories</li>
+							) : data?.length > 0 ? (
+								data.map((category) => (
+									<li key={category.id} className="w-full">
+										<Link
+											href={`/products?category=${category.name}`}
+											className={cn(
+												"flex space-x-4 items-center py-3 px-4 font-medium w-full text-gray-700 transition-colors duration-200 hover:bg-slate-200",
+												pathname === `/product?category=${category.name}` &&
+													"bg-slate-300"
+											)}
+											onClick={() =>
+												handleLinkClick(`/products?category=${category.name}`)
+											}
+										>
+											<ArrowBigRightDash className="size-5" />
+											<span className="font-medium capitalize">
+												{category.name}
+											</span>
+										</Link>
 									</li>
-								))}
-							</div>
-						) : error ? (
-							<li className="text-red-500 px-4">Failed to load categories</li>
-						) : data?.length > 0 ? (
-							data.map((category) => (
-								<li key={category.id} className="w-full">
-									<Link
-										href={`/products?category=${category.name}`}
-										className={cn(
-											"flex space-x-4 items-center py-3 px-4 font-medium w-full text-gray-700 transition-colors duration-200 hover:bg-slate-200",
-											pathname === `/product?category=${category.name}` &&
-												"bg-slate-300"
-										)}
-									>
-										<ArrowBigRightDash className="size-5" />
-										<span className="font-medium capitalize">
-											{category.name}
-										</span>
-									</Link>
-								</li>
-							))
-						) : (
-							<li className="px-4">No categories available</li>
-						)}
+								))
+							) : (
+								<li className="px-4">No categories available</li>
+							)}
+						</ScrollArea>
 					</ul>
+					<LogoutButton
+						iconClassName="size-3"
+						className="text-gray-700 text-sm"
+					/>
 				</div>
 			</SheetContent>
 		</Sheet>
