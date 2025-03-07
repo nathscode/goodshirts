@@ -25,7 +25,6 @@ export function SidebarNavItem({
 							<SidebarItem
 								icon={item.icon}
 								label={item.title}
-								active={item.active!}
 								href={item.url}
 							/>
 						</div>

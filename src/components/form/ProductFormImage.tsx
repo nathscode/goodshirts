@@ -88,9 +88,9 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 	const onDrop = useCallback((acceptedFiles: File[]) => {
 		// @ts-ignore
 		const newImages: ImageSchemaInfer[] = acceptedFiles.map((file) => ({
-			file,
+			file, // File object
 			preview: URL.createObjectURL(file),
-			isNew: true,
+			isNew: true, // Mark as new image
 		}));
 
 		setImages((prevImages) => [...prevImages, ...newImages]);
@@ -160,6 +160,7 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 			toast.error("Please select an image");
 			return;
 		}
+
 		const formData = new FormData();
 		formData.append("name", values.name);
 		formData.append("description", values.description);
@@ -185,15 +186,15 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 
 		// Append all images to formData
 		processedImages.forEach((file) => {
-			// @ts-ignore
 			formData.append("images", file);
 		});
 
 		// Log formData for debugging
-		// for (const [key, value] of formData.entries()) {
-		// 	console.log(key, value);
-		// }
+		for (const [key, value] of formData.entries()) {
+			console.log(key, value);
+		}
 
+		// Submit the form data
 		mutate(formData);
 	};
 
@@ -391,63 +392,59 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 								)}
 							/>
 						</div>
-						{initialData ? (
-							<div>Edit Image</div>
-						) : (
-							<div className="flex flex-col">
-								<Label className="mb-4">Product Image</Label>
-								<div
-									{...getRootProps()}
-									className={`border-2 border-dashed rounded-lg p-4 ${
-										isDragActive ? "border-blue-500" : "border-gray-300"
-									}`}
-								>
-									<input {...getInputProps()} />
-									{isDragActive ? (
-										<p>Drop the files here ...</p>
-									) : (
-										<div className="flex items-start justify-start">
-											<div>
-												<ImageIcon className="w-10 h-10" />
-											</div>
-											<div className="ml-4">
-												<p className="text-sm">
-													{isDragActive
-														? "Drop the files here"
-														: "Drag and drop files here or click to select"}
-												</p>
-												<p className="text-xs text-gray-500 mt-1">
-													Accepted file types: PNG, JPEG, JPG. Max file size:
-													10MB.
-												</p>
-											</div>
+						<div className="flex flex-col">
+							<Label className="mb-4">Product Image</Label>
+							<div
+								{...getRootProps()}
+								className={`border-2 border-dashed rounded-lg p-4 ${
+									isDragActive ? "border-blue-500" : "border-gray-300"
+								}`}
+							>
+								<input {...getInputProps()} />
+								{isDragActive ? (
+									<p>Drop the files here ...</p>
+								) : (
+									<div className="flex items-start justify-start">
+										<div>
+											<ImageIcon className="w-10 h-10" />
 										</div>
-									)}
-									<div className="my-5 flex justify-start gap-4">
-										{images.map((image, index) => (
-											<div
-												key={index}
-												className="relative flex items-center mt-2"
-											>
-												<Image
-													src={image.preview!}
-													alt="Preview"
-													height={80}
-													width={80}
-													className="w-16 h-16 object-cover rounded"
-												/>
-												<button
-													onClick={() => removeImage(index)}
-													className="absolute -top-2 -right-1 p-1 bg-red-500 text-white rounded-full"
-												>
-													<XIcon className="w-4 h-4" />
-												</button>
-											</div>
-										))}
+										<div className="ml-4">
+											<p className="text-sm">
+												{isDragActive
+													? "Drop the files here"
+													: "Drag and drop files here or click to select"}
+											</p>
+											<p className="text-xs text-gray-500 mt-1">
+												Accepted file types: PNG, JPEG, JPG. Max file size:
+												10MB.
+											</p>
+										</div>
 									</div>
+								)}
+								<div className="my-5 flex justify-start gap-4">
+									{images.map((image, index) => (
+										<div
+											key={index}
+											className="relative flex items-center mt-2"
+										>
+											<Image
+												src={image.preview!}
+												alt="Preview"
+												height={80}
+												width={80}
+												className="w-16 h-16 object-cover rounded"
+											/>
+											<button
+												onClick={() => removeImage(index)}
+												className="absolute -top-2 -right-1 p-1 bg-red-500 text-white rounded-full"
+											>
+												<XIcon className="w-4 h-4" />
+											</button>
+										</div>
+									))}
 								</div>
 							</div>
-						)}
+						</div>
 
 						<LoadingButton
 							type="submit"

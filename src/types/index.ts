@@ -98,9 +98,9 @@ export type BreadcrumbTypes = {
 export interface SidebarItemProps {
 	icon: React.JSX.Element;
 	label: string;
-	active: boolean;
 	href: string;
 	notification?: number;
+	onClick?: () => void;
 }
 
 export type statusType =

@@ -2,9 +2,13 @@
 import DashboardNavBar from "@/src/components/DashboardNavBar";
 import { AppSidebar } from "@/src/components/sidebar";
 import { useSidebarStore } from "@/src/hooks/use-sidebar";
+import { getInitials } from "@/src/lib/utils";
+import { useSession } from "next-auth/react";
 import { useStore } from "zustand";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+	const { data: session } = useSession();
+	const initials = getInitials(`${session?.user.name}`);
 	const { isSidebarOpen } = useStore(useSidebarStore);
 	return (
 		<div className="min-h-screen bg-slate-100 w-full relative overflow-hidden">
@@ -22,7 +26,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 			>
 				<div className="flex-1 overflow-y-auto h-full p-4 md:p-6 relative z-10">
 					<div className="relative min-h-full flex flex-col">
-						<DashboardNavBar />
+						<DashboardNavBar initials={initials} />
 						<div className="h-full min-h-screen flex flex-col flex-1 space-y-4 bg-white rounded-lg">
 							{children}
 						</div>

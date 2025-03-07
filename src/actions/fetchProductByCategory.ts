@@ -1,24 +1,31 @@
 "use server";
+
 import { ProductWithExtra, products } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, not } from "drizzle-orm";
 import { unstable_noStore as noStore } from "next/cache";
 import db from "../db";
 import getCurrentUser from "./getCurrentUser";
 
 export default async function fetchProductByCategory(
-	category: string
-): Promise<ProductWithExtra[] | null> {
+	category: string,
+	productId?: string
+): Promise<ProductWithExtra[] | []> {
 	try {
 		noStore();
 
 		if (!category) {
-			return null;
+			throw new Error("Category is required");
 		}
-		const session = await getCurrentUser();
-		if (!session) return null;
 
+		// Construct where clause to exclude the specific productId if provided
+		const whereClause = productId
+			? and(
+					eq(products.subCategoryId, category),
+					not(eq(products.id, productId))
+				)
+			: eq(products.subCategoryId, category);
 		const allProducts = await db.query.products.findMany({
-			where: eq(products.subCategoryId, category),
+			where: whereClause,
 			with: {
 				category: true,
 				subCategory: true,
@@ -30,14 +37,14 @@ export default async function fetchProductByCategory(
 				medias: true,
 			},
 		});
-
+		console.log(allProducts);
 		if (!allProducts) {
-			return null;
+			return [];
 		}
-		const plainProducts = JSON.parse(JSON.stringify(allProducts));
-		return plainProducts;
+
+		return allProducts;
 	} catch (error) {
-		console.error("Error fetching all products:", error);
-		return null;
+		console.error("Error fetching products:", error);
+		return [];
 	}
 }

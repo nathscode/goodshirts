@@ -1,16 +1,9 @@
-import CustomerSidebar from "@/src/components/CustomerSidebar";
-import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
+import { redirect } from "next/navigation";
 
 type Props = {};
 
 const CustomerPage = async (props: Props) => {
-	return (
-		<MaxWidthWrapper>
-			<div className="md:hidden">
-				<CustomerSidebar />
-			</div>
-		</MaxWidthWrapper>
-	);
+	redirect("/customer/account");
 };
 
 export default CustomerPage;

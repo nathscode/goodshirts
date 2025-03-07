@@ -297,7 +297,10 @@ const ProductClient = ({ product }: Props) => {
 				<h1 className="text-xl sm:text-3xl capitalize font-dela font-semibold mb-5">
 					You may also like
 				</h1>
-				<RecommendedProduct categoryId={product.subCategory.id} />
+				<RecommendedProduct
+					categoryId={product.subCategory.id}
+					productId={product.id}
+				/>
 			</div>
 			<div className="flex flex-col justify-start w-full border p-4">
 				<h1 className="text-xl sm:text-3xl capitalize font-dela font-semibold mb-5">

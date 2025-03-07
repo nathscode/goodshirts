@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { SiteLogo } from "../SiteLogo";
 import { SecondarySidebarItem } from "./SecondarySidebarItem";
 import { SidebarNavItem } from "./SidebarNavItem";
+import Link from "next/link";
 
 const data = {
 	navSecondary: [
@@ -30,52 +31,44 @@ const data = {
 		},
 	],
 };
+export const navMain = [
+	{
+		title: "Overview",
+		url: "/dashboard",
+		icon: <LayoutDashboard className="size-5" />,
+	},
+	{
+		title: "Orders",
+		url: "/dashboard/orders",
+		icon: <Box className="size-5" />,
+	},
+	{
+		title: "Products",
+		url: "/dashboard/products",
+		icon: <Tag className="size-5" />,
+	},
+	{
+		title: "Category",
+		url: "/dashboard/categories",
+		icon: <LibraryBig className="size-5" />,
+	},
+	{
+		title: "Collections",
+		url: "/dashboard/collections",
+		icon: <Layout className="size-5" />,
+	},
+	{
+		title: "customers",
+		url: "/dashboard/customers",
+		icon: <Users className="size-5" />,
+	},
+	{
+		title: "analytics",
+		url: "/dashboard/analytics",
+		icon: <BarChart className="size-5" />,
+	},
+];
 export function AppSidebar({ ...props }: React.ComponentProps<any>) {
-	const pathname = usePathname();
-	const navMain = [
-		{
-			title: "Overview",
-			url: "/dashboard",
-			icon: <LayoutDashboard className="size-5" />,
-			active: pathname === "/dashboard",
-		},
-		{
-			title: "Orders",
-			url: "/dashboard/orders",
-			icon: <Box className="size-5" />,
-			active: pathname === "/dashboard/orders",
-		},
-		{
-			title: "Products",
-			url: "/dashboard/products",
-			icon: <Tag className="size-5" />,
-			active: pathname === "/dashboard/products",
-		},
-		{
-			title: "Category",
-			url: "/dashboard/categories",
-			icon: <LibraryBig className="size-5" />,
-			active: pathname === "/dashboard/categories",
-		},
-		{
-			title: "Collections",
-			url: "/dashboard/collections",
-			icon: <Layout className="size-5" />,
-			active: pathname === "/dashboard/collections",
-		},
-		{
-			title: "customers",
-			url: "/dashboard/customers",
-			icon: <Users className="size-5" />,
-			active: pathname === "/dashboard/customers",
-		},
-		{
-			title: "analytics",
-			url: "/dashboard/analytics",
-			icon: <BarChart className="size-5" />,
-			active: pathname === "/dashboard/analytics",
-		},
-	];
 	const onLogoutClick = async () => {
 		const response = await logout();
 		if (response.success) {
@@ -90,7 +83,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<any>) {
 			<div className="flex flex-col gap-2 p-2">
 				<div className="flex flex-col justify-center items-center w-full">
 					<div className="flex flex-col justify-center items-center w-full">
-						<SiteLogo className="w-20" />
+						<Link href="/">
+							<SiteLogo className="w-20" />
+						</Link>
 					</div>
 				</div>
 			</div>

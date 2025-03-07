@@ -15,7 +15,7 @@ import {
 	variantSchemaInfer,
 } from "@/src/lib/validators/variant";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -30,6 +30,7 @@ interface VariantFormProps {
 }
 
 const VariantForm = ({ slug, initialData }: VariantFormProps) => {
+	const queryClient = useQueryClient();
 	const form = useForm<variantSchemaInfer>({
 		resolver: zodResolver(variantSchema),
 		defaultValues: {
@@ -42,7 +43,7 @@ const VariantForm = ({ slug, initialData }: VariantFormProps) => {
 							size: "",
 							price: "",
 							discountPrice: "",
-							stockQuantity: 0,
+							stockQuantity: 1,
 							available: true,
 						},
 					],
@@ -51,7 +52,6 @@ const VariantForm = ({ slug, initialData }: VariantFormProps) => {
 		},
 	});
 
-	// ✅ Set up useFieldArray for "variants" only (not productSlug)
 	const {
 		fields: variantFields,
 		append: addVariant,
@@ -68,6 +68,7 @@ const VariantForm = ({ slug, initialData }: VariantFormProps) => {
 		},
 		onSuccess: (data) => {
 			if (data && data.status === "success") {
+				queryClient.resetQueries;
 				window.location.href = `/dashboard/products/${slug}`;
 				form.reset();
 				toast.success("Variants added successfully");

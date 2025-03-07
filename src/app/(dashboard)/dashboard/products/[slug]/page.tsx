@@ -3,6 +3,7 @@ import NotFound from "@/src/app/not-found";
 import { VariantColumns } from "@/src/components/columns/VariantColumn";
 import BackButton from "@/src/components/common/BackButton";
 import { DataTable } from "@/src/components/common/DataTable";
+import FeaturedProductAction from "@/src/components/common/FeaturedProductAction";
 import { Button } from "@/src/components/ui/button";
 import { Separator } from "@/src/components/ui/separator";
 import Link from "next/link";
@@ -22,7 +23,7 @@ const ProductDashboardDetails = async ({ params }: { params: IParams }) => {
 		<div className="flex justify-center items-center flex-col w-full py-24">
 			<div className="flex flex-col justify-start w-full px-5 ">
 				<div className="flex flex-col justify-start w-fit">
-					<BackButton />
+					<BackButton href="/dashboard/products" />
 				</div>
 				<div className="flex justify-end w-full">
 					<Button asChild>
@@ -34,6 +35,12 @@ const ProductDashboardDetails = async ({ params }: { params: IParams }) => {
 				<div className="flex flex-col justify-start">
 					<h1 className="text-lg font-bold capitalize mb-1">{product.name}</h1>
 					<p className="text-gray-500 text-base">{`${product.category.name}/${product.subCategory.name}`}</p>
+					<div className="flex flex-col justify-start my-4 w-fit">
+						<FeaturedProductAction
+							id={product.id}
+							isFeatured={product.isFeatured!}
+						/>
+					</div>
 					<Separator className="bg-gray-200 my-4" />
 					<DataTable
 						columns={VariantColumns}

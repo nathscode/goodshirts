@@ -13,7 +13,7 @@ import {
 	trimAndLowercase,
 } from "@/src/lib/utils";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, not, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import slugify from "slugify";
 import { ZodError } from "zod";
@@ -73,9 +73,6 @@ export async function POST(req: NextRequest) {
 	const images: File[] = formData.getAll("images") as File[];
 	const name: string = formData.get("name") as string;
 	const description: string = formData.get("description") as string;
-	const price: string = formData.get("price") as string;
-	const discountPrice: string = formData.get("discountPrice") as string;
-	const stock: string = formData.get("stock") as string;
 	const categoryId: string = formData.get("categoryId") as string;
 	const subCategoryId: string = formData.get("SubCategoryId") as string;
 
@@ -180,9 +177,9 @@ export async function POST(req: NextRequest) {
 					name: productName,
 					slug: productSlug,
 					description,
-					basePrice: Number(price),
-					baseDiscountPrice: Number(discountPrice),
-					stockQuantity: Number(stock),
+					basePrice: Number(0),
+					baseDiscountPrice: Number(0),
+					stockQuantity: Number(1),
 					categoryId: existingCategory.id,
 					subCategoryId: existingSubCategory.id,
 					sku,
@@ -213,6 +210,127 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ status: "success", slug: result.slug });
 	} catch (error: any) {
 		logger.error("PRODUCT CREATION ERROR:", error);
+
+		if (error instanceof ZodError) {
+			return handlerNativeResponse(
+				{
+					status: 422,
+					errors: { message: error.errors[0]?.message || "Validation failed" },
+				},
+				422
+			);
+		}
+
+		return handlerNativeResponse(
+			{
+				status: 500,
+				errors: { message: error.message || "Something went wrong" },
+			},
+			500
+		);
+	}
+}
+
+export async function PATCH(req: NextRequest) {
+	try {
+		const formData = await req.formData();
+		const name: string = formData.get("name") as string;
+		const slug: string = formData.get("slug") as string;
+		const description: string = formData.get("description") as string;
+		const categoryId: string = formData.get("categoryId") as string;
+		const subCategoryId: string = formData.get("SubCategoryId") as string;
+
+		console.log(formData);
+		console.log({ categoryId });
+		console.log({ subCategoryId });
+		// Authentication & Authorization
+		const session = await getCurrentUser();
+		if (!session) {
+			return handlerNativeResponse(
+				{ status: 401, errors: { message: "Unauthorized user" } },
+				401
+			);
+		}
+
+		const isAdmin = await checkIsAdmin();
+		if (!isAdmin) {
+			return handlerNativeResponse(
+				{ status: 403, errors: { message: "Not authorized" } },
+				403
+			);
+		}
+
+		// Validate Required Fields
+		if (!slug || !name || !categoryId || !subCategoryId) {
+			return handlerNativeResponse(
+				{ status: 400, errors: { message: "All fields are required" } },
+				400
+			);
+		}
+
+		// Fetch Product, Category, and Sub-Category in parallel
+		const [existingProduct, existingCategory, existingSubCategory] =
+			await Promise.all([
+				db.query.products.findFirst({ where: eq(products.slug, slug) }),
+				db.query.categories.findFirst({ where: eq(categories.id, categoryId) }),
+				db.query.subCategories.findFirst({
+					where: eq(subCategories.id, subCategoryId),
+				}),
+			]);
+
+		// Validate Product and Categories
+		if (!existingProduct) {
+			return handlerNativeResponse(
+				{ status: 404, errors: { message: "Product not found" } },
+				404
+			);
+		}
+		if (!existingCategory || !existingSubCategory) {
+			return handlerNativeResponse(
+				{
+					status: 404,
+					errors: { message: "Invalid category or sub-category" },
+				},
+				404
+			);
+		}
+
+		// Check if the name has changed
+		const formattedName = trimAndLowercase(name);
+		let newSlug = slugify(formattedName, { lower: true });
+
+		if (existingProduct.name !== formattedName) {
+			// Name has changed, check if the new name's slug already exists
+			const slugExists = await db.query.products.findFirst({
+				where: and(eq(products.slug, newSlug), not(eq(products.slug, slug))),
+			});
+
+			// If slug exists, append a random string to make it unique
+			if (slugExists) {
+				newSlug += `-${generateRandomString()}`;
+			}
+		} else {
+			// If the name hasn't changed, retain the existing slug
+			newSlug = existingProduct.slug;
+		}
+
+		// Update Product
+		await db
+			.update(products)
+			.set({
+				name: formattedName,
+				slug: newSlug,
+				description,
+				categoryId: existingCategory.id,
+				subCategoryId: existingSubCategory.id,
+				updatedAt: new Date(),
+			})
+			.where(eq(products.slug, slug));
+
+		logger.info(`Product ${slug} updated successfully. New slug: ${newSlug}`);
+		return NextResponse.json({ status: "success", slug: newSlug });
+	} catch (error: any) {
+		logger.error("PRODUCT UPDATE ERROR:", error);
 
 		if (error instanceof ZodError) {
 			return handlerNativeResponse(

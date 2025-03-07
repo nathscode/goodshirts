@@ -10,6 +10,7 @@ import { User } from "next-auth";
 import { UserType } from "../types";
 import { AdapterUser } from "next-auth/adapters";
 import { mapToAdapterUser } from "../lib/backend/map-to-users";
+import { normalizeEmail } from "../lib/utils";
 
 export async function getUserFromDb(
 	email: string,
@@ -43,7 +44,6 @@ export async function loginUser({
 			email,
 			password,
 		});
-
 		const res = await signIn("credentials", {
 			email,
 			password,

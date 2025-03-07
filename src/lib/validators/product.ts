@@ -7,7 +7,5 @@ export const ProductSchema = z.object({
 	category: z.string().min(1, { message: "category is required" }),
 	subCategory: z.string().min(1, { message: "sub category is required" }),
 	description: z.string().min(1, { message: "description is required" }),
-	price: z.coerce.number().optional(),
-	discountPrice: z.coerce.number().optional(),
 });
 export type ProductSchemaInfer = z.infer<typeof ProductSchema>;

@@ -1,3 +1,4 @@
+"use client";
 import {
 	Form,
 	FormControl,
@@ -7,16 +8,54 @@ import {
 	FormMessage,
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
-
 import { useFieldArray } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Trash } from "lucide-react";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const PriceVariantsForm = ({ form, name }: { form: any; name: string }) => {
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
 		name,
 	});
+	const formatNumberWithCommas = (value: string) => {
+		return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	};
+
+	const handlePriceChange = (index: number, value: string) => {
+		const numericValue = value.replace(/[^0-9.]/g, "");
+		const formattedValue = formatNumberWithCommas(numericValue);
+		form.setValue(`${name}.${index}.price`, numericValue);
+		form.setValue(`${name}.${index}.formattedPrice`, formattedValue);
+	};
+
+	const handleDiscountPriceChange = (index: number, value: string) => {
+		const numericValue = value.replace(/[^0-9.]/g, "");
+		const formattedValue = formatNumberWithCommas(numericValue);
+		form.setValue(`${name}.${index}.discountPrice`, numericValue);
+		form.setValue(`${name}.${index}.formattedDiscountPrice`, formattedValue);
+	};
+
+	const handleAddVariant = () => {
+		const newVariant = {
+			size: "",
+			price: "0",
+			discountPrice: "0",
+			formattedPrice: "0",
+			formattedDiscountPrice: "0",
+			stockQuantity: 0,
+			available: true,
+		};
+		if (newVariant.discountPrice && newVariant.price) {
+			if (parseFloat(newVariant.discountPrice) > parseFloat(newVariant.price)) {
+				toast.error("Discount Price cannot be greater than Price");
+				return;
+			}
+		}
+
+		append(newVariant);
+	};
 
 	return (
 		<div>
@@ -67,16 +106,18 @@ const PriceVariantsForm = ({ form, name }: { form: any; name: string }) => {
 							{/* Price */}
 							<FormField
 								control={form.control}
-								name={`${name}.${index}.price`}
+								name={`${name}.${index}.formattedPrice`}
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Price</FormLabel>
 										<FormControl>
 											<Input
-												type="number"
-												step="0.01"
-												placeholder="e.g 19.99"
+												type="text"
+												placeholder="e.g 10,000"
 												{...field}
+												onChange={(e) =>
+													handlePriceChange(index, e.target.value)
+												}
 											/>
 										</FormControl>
 										<FormMessage />
@@ -88,30 +129,44 @@ const PriceVariantsForm = ({ form, name }: { form: any; name: string }) => {
 							{/* Discount Price */}
 							<FormField
 								control={form.control}
-								name={`${name}.${index}.discountPrice`}
+								name={`${name}.${index}.formattedDiscountPrice`}
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Discount Price</FormLabel>
 										<FormControl>
 											<Input
-												type="number"
-												step="0.01"
-												placeholder="e.g 15.99"
+												type="text"
+												placeholder="e.g 15,000"
 												{...field}
+												onChange={(e) =>
+													handleDiscountPriceChange(index, e.target.value)
+												}
+												onBlur={() => {
+													const price = parseFloat(
+														form.getValues(`${name}.${index}.price`)
+													);
+													const discountPrice = parseFloat(
+														form.getValues(`${name}.${index}.discountPrice`)
+													);
+
+													if (discountPrice > price) {
+														toast.error(
+															"Discount Price cannot be greater than Price"
+														);
+														form.setError(`${name}.${index}.discountPrice`, {
+															type: "manual",
+															message:
+																"Discount Price cannot be greater than Price",
+														});
+													} else {
+														form.clearErrors(`${name}.${index}.discountPrice`);
+													}
+												}}
 											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
 								)}
-								rules={{
-									validate: (discountPrice, formValues) => {
-										const price = formValues[name][index]?.price;
-										if (parseFloat(discountPrice) > parseFloat(price)) {
-											return "Discount Price can't be bigger than Price";
-										}
-										return true;
-									},
-								}}
 							/>
 						</div>
 					</div>
@@ -133,23 +188,12 @@ const PriceVariantsForm = ({ form, name }: { form: any; name: string }) => {
 
 			{/* Add Price Variant Button */}
 			<div className="flex flex-col w-full my-4">
-				<Button
-					type="button"
-					variant={"secondary"}
-					onClick={() =>
-						append({
-							size: "",
-							price: "",
-							discountPrice: "",
-							stockQuantity: 0,
-							available: true,
-						})
-					}
-				>
+				<Button type="button" variant={"secondary"} onClick={handleAddVariant}>
 					Add Another Size & Price
 				</Button>
 			</div>
 		</div>
 	);
 };
+
 export default PriceVariantsForm;

@@ -14,7 +14,9 @@ const UserAvatar = ({ name, image }: Props) => {
 	return (
 		<Avatar>
 			<AvatarImage src={image} />
-			<AvatarFallback>{name}</AvatarFallback>
+			<AvatarFallback className="bg-white text-xs">
+				<span className="font-bold">{name}</span>
+			</AvatarFallback>
 		</Avatar>
 	);
 };

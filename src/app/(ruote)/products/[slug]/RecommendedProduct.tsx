@@ -8,11 +8,12 @@ import React from "react";
 
 type Props = {
 	categoryId: string;
+	productId: string;
 };
 
-const RecommendedProduct = ({ categoryId }: Props) => {
+const RecommendedProduct = ({ categoryId, productId }: Props) => {
 	const getRecommendedProducts = async () => {
-		const response = await fetchProductByCategory(categoryId);
+		const response = await fetchProductByCategory(categoryId, productId);
 		return response;
 	};
 	const { isPending, error, data } = useQuery({

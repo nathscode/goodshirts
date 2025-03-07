@@ -62,12 +62,12 @@ const ProductDetailPage = async ({
 		},
 		{
 			name: `${product.category.name}`,
-			href: `${product.category.slug}`,
+			href: `/products/?category=${product.category.name}`,
 			hasLink: true,
 		},
 		{
 			name: `${product.subCategory.name}`,
-			href: `${product.category.slug}/${product.subCategory.slug}`,
+			href: `/products/?q="${product.category.name} ${product.subCategory.name}"`,
 			hasLink: true,
 		},
 		{
