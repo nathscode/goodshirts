@@ -592,6 +592,10 @@ export type ProductWithExtra = ProductType & {
 	reviews: ReviewWithExtra[];
 	saved: SavedWithExtra[];
 };
+export type ProductWithCategory = ProductType & {
+	category: CategoryType;
+	subCategory: SubCategoryType;
+};
 
 export type ProductWithSaved = ProductType & {
 	saved: SavedWithExtra[];

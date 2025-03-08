@@ -8,6 +8,7 @@ import { CustomUser } from "../types";
 import AccountDropdown from "./dropdown/account-dropdown";
 import SearchSection from "./SearchSection";
 import { MobileSheet } from "./modal/MobileSheet";
+import SearchModal from "./modal/SearchModal";
 
 type Props = {
 	session: CustomUser | null;
@@ -64,21 +65,7 @@ const NavbarClient = ({ session }: Props) => {
 					<ul className="md:flex flex-1 items-center justify-end hidden ml-auto space-x-6 lg:flex">
 						{/* Search Icon */}
 						<li className="inline-flex">
-							<div
-								className={`overflow-hidden transition-all duration-300 ${
-									isSearchOpen
-										? "max-h-[100px] opacity-100"
-										: "max-h-0 opacity-0"
-								}`}
-							>
-								<SearchSection />
-							</div>
-							<button
-								onClick={() => setIsSearchOpen(!isSearchOpen)}
-								className="transition ml-2"
-							>
-								<Search className="size-5 text-gray-600" />
-							</button>
+							<SearchModal open={isSearchOpen} onOpenChange={setIsSearchOpen} />
 						</li>
 
 						{/* Cart */}
@@ -107,11 +94,7 @@ const NavbarClient = ({ session }: Props) => {
 					{/* Mobile Navbar */}
 					<div className="justify-end lg:hidden">
 						<div className="absolute top-0 left-0 w-full">
-							<div
-								className={`${
-									showMobileSearch ? "pb-14" : "pb-0"
-								}  bg-white border rounded shadow-md`}
-							>
+							<div className="bg-white border rounded shadow-md">
 								<div className="flex items-center justify-between px-4">
 									{/* Mobile Menu & Logo */}
 									<div className="flex justify-start items-center space-x-2">
@@ -130,12 +113,11 @@ const NavbarClient = ({ session }: Props) => {
 									{/* Mobile Right Section */}
 									<div className="flex justify-start items-center space-x-4">
 										{/* Search Button */}
-										<button
-											onClick={() => setShowMobileSearch(!showMobileSearch)}
-											className="p-1 rounded-md transition hover:bg-gray-100"
-										>
-											<Search className="size-5 text-gray-600" />
-										</button>
+										<SearchModal
+											open={isSearchOpen}
+											onOpenChange={setIsSearchOpen}
+										/>
+
 										{session ? (
 											<Link href={"/customer/account"}>
 												<User2 className="size-5" />
@@ -157,15 +139,6 @@ const NavbarClient = ({ session }: Props) => {
 							</div>
 						</div>
 					</div>
-				</div>
-
-				{/* Mobile Search Section (Toggles when clicking search icon) */}
-				<div
-					className={`transition-all duration-300 ${
-						showMobileSearch ? "max-h-[200px] opacity-100" : "max-h-0 opacity-0"
-					} overflow-hidden flex sm:hidden`}
-				>
-					<SearchSection className="w-full" />
 				</div>
 			</div>
 		</>

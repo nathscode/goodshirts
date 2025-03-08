@@ -49,12 +49,10 @@ const RegisterForm = (props: Props) => {
 				form.reset();
 				toast.success("Account created successfully");
 			} else {
-				console.error("Unexpected response structure:", data);
 				toast.error("Unexpected response from server");
 			}
 		},
 		onError: (err: any) => {
-			console.error("Mutation failed. Error:", err);
 			const errorMessage =
 				err.response?.data?.errors?.message || "Server error";
 			toast.error("An error occurred", { description: errorMessage });
@@ -64,7 +62,10 @@ const RegisterForm = (props: Props) => {
 		setShowPassword(!showPassword);
 	};
 
-	const onSubmit = (values: RegisterSchemaInfer) => register(values);
+	const onSubmit = (values: RegisterSchemaInfer) => {
+		register(values);
+	};
+
 	return (
 		<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
 			<div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">

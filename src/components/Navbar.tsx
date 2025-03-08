@@ -11,7 +11,7 @@ const Navbar = async () => {
 					<NavbarClient session={session} />
 				</MaxWidthWrapper>
 			</div>
-			<div className="block py-14"></div>
+			<div className="block py-5"></div>
 		</>
 	);
 };
