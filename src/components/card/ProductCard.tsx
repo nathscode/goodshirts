@@ -5,7 +5,6 @@ import Link from "next/link";
 import SaveProductSection from "../SaveProductSection";
 import ProductPrice from "../common/ProductPrice";
 import AnimatedContent from "../ui/animated-content";
-import { useRouter } from "next/navigation";
 
 type Props = {
 	product: ProductWithExtra;

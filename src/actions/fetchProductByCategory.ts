@@ -35,13 +35,12 @@ export default async function fetchProductByCategory(
 					},
 				},
 				medias: true,
+				reviews: true,
 			},
 		});
-		console.log(allProducts);
 		if (!allProducts) {
 			return [];
 		}
-
 		return allProducts;
 	} catch (error) {
 		console.error("Error fetching products:", error);
