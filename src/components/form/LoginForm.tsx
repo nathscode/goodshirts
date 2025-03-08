@@ -13,6 +13,7 @@ import {
 	FormMessage,
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
+import { normalizeEmail } from "@/src/lib/utils";
 import { LoginSchema, LoginSchemaInfer } from "@/src/lib/validators/auth";
 import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
@@ -39,7 +40,10 @@ const LoginForm = (props: Props) => {
 
 	const { mutate: login, isPending } = useMutation({
 		mutationFn: async (values: LoginSchemaInfer) => {
-			const data = await loginUser(values);
+			const data = await loginUser({
+				email: normalizeEmail(values.email),
+				password: values.password,
+			});
 			return data;
 		},
 		onSuccess: async (data) => {

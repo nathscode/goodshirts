@@ -5,8 +5,10 @@ import axios from "axios";
 import Link from "next/link";
 import ProductCard from "../card/ProductCard";
 import ProductSkeleton from "../skeleton/ProductSkeleton";
+import { useSession } from "next-auth/react";
 
 const HomeProductContent = () => {
+	const { data: session } = useSession();
 	const fetchRecentProducts = async () => {
 		let url = `/api/products/`;
 
@@ -53,7 +55,11 @@ const HomeProductContent = () => {
 		<>
 			<div className="flex flex-wrap justify-center md:justify-start w-full gap-5 ">
 				{products.map((item: ProductWithExtra) => (
-					<ProductCard key={item.id} product={item} />
+					<ProductCard
+						key={item.id}
+						product={item}
+						userId={session?.user.id!}
+					/>
 				))}
 			</div>
 			<div className="flex items-center justify-center mt-10 mb-5">

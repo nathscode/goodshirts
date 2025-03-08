@@ -9,9 +9,10 @@ import ImageMagnifier from "./common/ImageMagnifier";
 
 type Props = {
 	image: string;
+	alt: string;
 };
 
-const DetailProductImage = ({ image }: Props) => {
+const DetailProductImage = ({ alt, image }: Props) => {
 	const [open, setOpen] = useState<boolean>(false);
 	const matches = useMediaQuery("(max-width: 400px)");
 
@@ -20,15 +21,15 @@ const DetailProductImage = ({ image }: Props) => {
 	};
 
 	return (
-		<div className="relative">
+		<div className="relative w-full">
 			<ImageMagnifier
 				src={image}
-				width={matches ? 300 : 410}
+				width={matches ? 400 : 500}
 				height={matches ? 335 : 435}
 				magnifierHeight={200}
 				magnifierWidth={200}
 				zoomLevel={3}
-				alt="Sample Image"
+				alt={alt}
 			/>
 
 			<div className="absolute top-2 right-10 z-20">
@@ -45,7 +46,7 @@ const DetailProductImage = ({ image }: Props) => {
 				<Lightbox
 					medium={image}
 					large={image}
-					alt="product image"
+					alt={alt}
 					hideZoom={false}
 					hideDownload={true}
 					// @ts-ignore

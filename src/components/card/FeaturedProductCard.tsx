@@ -30,7 +30,7 @@ const FeaturedProductCard = ({ product }: Props) => {
 			scale={1.1}
 			threshold={0.2}
 		>
-			<div className="relative flex w-[300px] sm:w-[250px] h-full  max-w-xs flex-col overflow-hidden  bg-white">
+			<div className="relative flex w-[300px] sm:w-[250px] h-full  max-w-xs flex-col overflow-hidden  bg-white group">
 				<Link
 					className="relative  flex h-[300px] rounded-lg overflow-hidden"
 					href={`products/${product.slug}`}
@@ -44,7 +44,7 @@ const FeaturedProductCard = ({ product }: Props) => {
 						/>
 						<div className="absolute inset-0 size-full bg-black/50">
 							{discountPercentage && discountPercentage > 0 ? (
-								<span className="absolute top-0 left-0 m-2 rounded-full bg-slate-50 px-2 text-center text-sm font-medium text-black">
+								<span className="absolute top-0 left-0 m-2 rounded-full bg-slate-50 px-2  py-0.5 text-center text-sm font-bold text-black">
 									{`${discountPercentage}%`} OFF
 								</span>
 							) : null}

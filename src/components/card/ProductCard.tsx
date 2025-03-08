@@ -1,16 +1,18 @@
 "use client";
 import { ProductWithExtra } from "@/src/db/schema";
-import { formatCurrency } from "@/src/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import AnimatedContent from "../ui/animated-content";
+import SaveProductSection from "../SaveProductSection";
 import ProductPrice from "../common/ProductPrice";
+import AnimatedContent from "../ui/animated-content";
+import { useRouter } from "next/navigation";
 
 type Props = {
 	product: ProductWithExtra;
+	userId: string;
 };
 
-const ProductCard = ({ product }: Props) => {
+const ProductCard = ({ product, userId }: Props) => {
 	const src = product.medias
 		? product.medias[0].url
 		: "/images/placeholder-image.png";
@@ -25,10 +27,7 @@ const ProductCard = ({ product }: Props) => {
 			scale={1.1}
 			threshold={0.2}
 		>
-			<Link
-				href={`/products/${product.slug}`}
-				className="w-[300px] sm:w-[250px] h-full  snap-center flex-col flex items-center flex-none cursor-pointer group rounded-tl-lg rounded-xl "
-			>
+			<div className="w-[300px] sm:w-[250px] h-full  snap-center flex-col flex items-center flex-none cursor-pointer group rounded-tl-lg rounded-xl">
 				<div className="w-full h-[300px] relative overflow-hidden rounded-xl bg-slate-50 ">
 					<Image
 						fill
@@ -36,25 +35,38 @@ const ProductCard = ({ product }: Props) => {
 						src={src}
 						alt="Listing"
 					/>
+					<div className="absolute right-2 top-2">
+						<SaveProductSection
+							productId={product.id}
+							variantId={product.variants[0].id}
+							sizeId={product.variants[0].variantPrices[0].id}
+							initialState={{
+								isSavedByUser: product.saved.some(
+									(save) => save.userId === userId
+								),
+							}}
+						/>
+					</div>
 				</div>
-
-				<div className="flex flex-col space-y-1 w-full my-4">
-					<h1 className="text-base line-clamp-2 capitalize text-pretty text-black font-bold">
-						{product.name}
-					</h1>
-					<p className="text-sm text-pretty text-gray-600 line-clamp-1">
-						{product.description}
-					</p>
-					<ProductPrice
-						price={Number(product.variants[0].variantPrices[0].price)}
-						discountPrice={Number(
-							product.variants[0].variantPrices[0].discountPrice
-						)}
-						priceClassName="font-bold"
-						containerClassName="font-bold"
-					/>
-				</div>
-			</Link>
+				<Link href={`/products/${product.slug}`}>
+					<div className="flex flex-col space-y-1 w-full my-4">
+						<h1 className="text-base line-clamp-2 capitalize text-pretty text-black font-bold group-hover:underline">
+							{product.name}
+						</h1>
+						<p className="text-sm text-pretty text-gray-600 line-clamp-1">
+							{product.description}
+						</p>
+						<ProductPrice
+							price={Number(product.variants[0].variantPrices[0].price)}
+							discountPrice={Number(
+								product.variants[0].variantPrices[0].discountPrice
+							)}
+							priceClassName="font-bold"
+							containerClassName="font-bold"
+						/>
+					</div>
+				</Link>
+			</div>
 		</AnimatedContent>
 	);
 };

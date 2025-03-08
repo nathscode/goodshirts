@@ -73,14 +73,15 @@ const SaveProductSection = ({
 			} else {
 				toast.error("Unexpected error");
 			}
-
 			router.refresh();
 		},
-		onError: (error, _, context) => {
+		onError: (error: any, _, context) => {
 			// Rollback UI state on error
 			setIsSaved(context?.previousState?.isSavedByUser ?? false);
 			queryClient.setQueryData(queryKey, context?.previousState);
-			toast.error("Failed to save product", { description: error.message });
+			const errorMessage =
+				error.response?.data?.errors?.message || "Server error";
+			toast.error("Failed to save product", { description: errorMessage });
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey });

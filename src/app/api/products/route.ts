@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
 	try {
 		const productsList = await db.query.products.findMany({
 			where: eq(products.isActive, true),
+
 			with: {
 				medias: {
 					columns: {
@@ -41,6 +42,11 @@ export async function GET(req: NextRequest) {
 				variants: {
 					with: {
 						variantPrices: true,
+					},
+				},
+				saved: {
+					with: {
+						user: true,
 					},
 				},
 			},

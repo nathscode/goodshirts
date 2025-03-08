@@ -6,9 +6,7 @@ import FeaturedProductCard from "../card/FeaturedProductCard";
 import Carousel from "../common/Carousel";
 import ProductSkeleton from "../skeleton/ProductSkeleton";
 
-type Props = {};
-
-const FeaturedList = (props: Props) => {
+const FeaturedList = () => {
 	{
 		const getFeaturedProduct = async () => {
 			const response = await getAllFeaturedProducts();

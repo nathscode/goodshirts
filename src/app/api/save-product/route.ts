@@ -6,6 +6,7 @@ import getCurrentUser from "@/src/actions/getCurrentUser";
 import { products, savedProducts } from "@/src/db/schema";
 import db from "@/src/db";
 import { z } from "zod";
+import { handlerNativeResponse } from "@/src/lib/utils";
 
 const logger = getLogger();
 
@@ -20,9 +21,14 @@ export async function POST(req: NextRequest) {
 	try {
 		const session = await getCurrentUser();
 		if (!session) {
-			return Response.json(
-				{ status: "error", message: "Log in to save this product" },
-				{ status: 401 }
+			return handlerNativeResponse(
+				{
+					status: 401,
+					errors: {
+						message: "Log in to save this product",
+					},
+				},
+				401
 			);
 		}
 
@@ -40,9 +46,14 @@ export async function POST(req: NextRequest) {
 			.execute();
 
 		if (productExists.length === 0) {
-			return Response.json(
-				{ status: "error", message: "Product not found" },
-				{ status: 404 }
+			return handlerNativeResponse(
+				{
+					status: 404,
+					errors: {
+						message: "Product not found",
+					},
+				},
+				404
 			);
 		}
 

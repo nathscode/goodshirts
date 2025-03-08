@@ -14,7 +14,7 @@ export default function MainLayout({
 		<div>
 			<div className="h-full overflow-y-auto overflow-x-hidden">
 				<Navbar />
-				<div className="min-h-screen flex-grow flex-1">{children}</div>
+				<div className="min-h-screen flex-grow flex-1 pt-10">{children}</div>
 				<ScrollUp />
 				<Footer />
 			</div>

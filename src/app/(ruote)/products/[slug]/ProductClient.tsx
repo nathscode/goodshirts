@@ -91,7 +91,10 @@ const ProductClient = ({ product }: Props) => {
 		<>
 			<div className="flex flex-wrap justify-center md:justify-start w-full">
 				<div className="w-full sm:w-1/2 md:px-3">
-					<DetailProductImage image={product.medias[0]?.url} />
+					<DetailProductImage
+						image={product.medias[0]?.url}
+						alt={product.name}
+					/>
 				</div>
 				<div className="w-full sm:w-1/2 sm:px-3 mt-8 sm:mt-0">
 					<div className="flex flex-col w-full relative">
