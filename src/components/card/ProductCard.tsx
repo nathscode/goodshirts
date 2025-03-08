@@ -5,6 +5,7 @@ import Link from "next/link";
 import SaveProductSection from "../SaveProductSection";
 import ProductPrice from "../common/ProductPrice";
 import AnimatedContent from "../ui/animated-content";
+import { useState } from "react";
 
 type Props = {
 	product: ProductWithExtra;
@@ -12,6 +13,7 @@ type Props = {
 };
 
 const ProductCard = ({ product, userId }: Props) => {
+	const [imageLoading, setImageLoading] = useState(true);
 	const src = product.medias
 		? product.medias[0].url
 		: "/images/placeholder-image.png";
@@ -30,7 +32,12 @@ const ProductCard = ({ product, userId }: Props) => {
 				<div className="w-full h-[300px] relative overflow-hidden rounded-xl bg-slate-50 ">
 					<Image
 						fill
-						className="object-cover object-center size-full transition-all aspect-square group-hover:scale-105"
+						className={`object-cover object-center size-full transition-all aspect-square group-hover:scale-105 ${
+							imageLoading
+								? "scale-110 blur-2xl grayscale"
+								: "scale-100 blur-0 grayscale-0"
+						}`}
+						onLoadingComplete={() => setImageLoading(false)}
 						src={src}
 						alt="Listing"
 					/>

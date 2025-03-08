@@ -4,6 +4,7 @@ import ProductCard from "@/src/components/card/ProductCard";
 import Carousel from "@/src/components/common/Carousel";
 import ProductSkeleton from "@/src/components/skeleton/ProductSkeleton";
 import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import React from "react";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 const RecommendedProduct = ({ categoryId, productId }: Props) => {
+	const { data: session } = useSession();
 	const getRecommendedProducts = async () => {
 		const response = await fetchProductByCategory(categoryId, productId);
 		return response;
@@ -45,7 +47,11 @@ const RecommendedProduct = ({ categoryId, productId }: Props) => {
 	return (
 		<Carousel title="Recommended" slideLength={data.length}>
 			{data.map((product) => (
-				<ProductCard key={product.id} product={product} />
+				<ProductCard
+					key={product.id}
+					product={product}
+					userId={session?.user.id!}
+				/>
 			))}
 		</Carousel>
 	);

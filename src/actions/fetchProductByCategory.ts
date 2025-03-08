@@ -4,7 +4,6 @@ import { ProductWithExtra, products } from "@/src/db/schema";
 import { and, eq, not } from "drizzle-orm";
 import { unstable_noStore as noStore } from "next/cache";
 import db from "../db";
-import getCurrentUser from "./getCurrentUser";
 
 export default async function fetchProductByCategory(
 	category: string,
@@ -17,7 +16,6 @@ export default async function fetchProductByCategory(
 			throw new Error("Category is required");
 		}
 
-		// Construct where clause to exclude the specific productId if provided
 		const whereClause = productId
 			? and(
 					eq(products.subCategoryId, category),
@@ -35,13 +33,15 @@ export default async function fetchProductByCategory(
 					},
 				},
 				medias: true,
+				saved: true,
 				reviews: true,
 			},
 		});
 		if (!allProducts) {
 			return [];
 		}
-		return allProducts;
+		const plainProducts = JSON.parse(JSON.stringify(allProducts));
+		return plainProducts;
 	} catch (error) {
 		console.error("Error fetching products:", error);
 		return [];
