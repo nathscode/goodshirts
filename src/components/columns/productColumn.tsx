@@ -23,6 +23,7 @@ export const ProductColumns: ColumnDef<ProductType>[] = [
 			</Link>
 		),
 	},
+
 	{
 		accessorKey: "sku",
 		header: "Sku",
@@ -32,6 +33,23 @@ export const ProductColumns: ColumnDef<ProductType>[] = [
 		accessorKey: "totalSales",
 		header: "Total Sales",
 		cell: ({ row }) => row.original.totalSales,
+	},
+	{
+		accessorKey: "isActive",
+		header: "Active",
+		cell: ({ row }) => (
+			<span>
+				{row.original.isActive ? (
+					<span className="px-2 py-1 bg-green-500 text-green-50 font-semibold  rounded-sm">
+						Active
+					</span>
+				) : (
+					<span className="px-2 py-1 bg-red-500 text-red-50  font-semibold rounded-sm">
+						Inactive
+					</span>
+				)}
+			</span>
+		),
 	},
 	{
 		id: "actions",

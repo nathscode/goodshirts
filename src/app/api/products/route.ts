@@ -23,9 +23,9 @@ const Bucket = process.env.TEBI_BUCKET_NAME;
 
 export async function GET(req: NextRequest) {
 	try {
+		// Fetch all active products
 		const productsList = await db.query.products.findMany({
 			where: eq(products.isActive, true),
-
 			with: {
 				medias: {
 					columns: {
@@ -53,16 +53,19 @@ export async function GET(req: NextRequest) {
 			orderBy: [sql`${products.createdAt} DESC`],
 		});
 
-		if (!productsList.length) {
+		const filteredProducts = productsList.filter(
+			(product) => product.variants && product.variants.length > 0
+		);
+
+		if (!filteredProducts.length) {
 			return new NextResponse(
 				JSON.stringify({ status: 404, message: "No products found" }),
 				{ status: 404 }
 			);
 		}
+
 		return new NextResponse(
-			JSON.stringify({
-				data: productsList,
-			}),
+			JSON.stringify({ data: filteredProducts }),
 			{ status: 200 }
 		);
 	} catch (error: any) {
@@ -73,6 +76,7 @@ export async function GET(req: NextRequest) {
 		);
 	}
 }
+
 
 export async function POST(req: NextRequest) {
 	const formData = await req.formData();
@@ -245,11 +249,6 @@ export async function PATCH(req: NextRequest) {
 		const description: string = formData.get("description") as string;
 		const categoryId: string = formData.get("categoryId") as string;
 		const subCategoryId: string = formData.get("SubCategoryId") as string;
-
-		console.log(formData);
-		console.log({ categoryId });
-		console.log({ subCategoryId });
-		// Authentication & Authorization
 		const session = await getCurrentUser();
 		if (!session) {
 			return handlerNativeResponse(
@@ -357,3 +356,4 @@ export async function PATCH(req: NextRequest) {
 		);
 	}
 }
+

@@ -104,8 +104,8 @@ const ProductClient = ({ product }: Props) => {
 							</h1>
 							<SaveProductSection
 								productId={product.id}
-								variantId={product.variants[0].id}
-								sizeId={product.variants[0].variantPrices[0].id}
+								variantId={product?.variants[0].id}
+								sizeId={product?.variants[0].variantPrices[0].id}
 								initialState={{
 									isSavedByUser: product.saved.some(
 										(save) => save.userId === session?.user.id

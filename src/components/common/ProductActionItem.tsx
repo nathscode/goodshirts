@@ -1,9 +1,9 @@
 "use client";
 
 import {
-	deleteCollection,
-	setActivateCollection,
-} from "@/src/actions/collection.action";
+	deleteProduct,
+	setActivateProduct,
+} from "@/src/actions/products.action";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -21,39 +21,41 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
-interface CollectionActionItemProps {
+interface ProductActionItemProps {
 	option: "delete" | "toggleActive";
 	id: string;
 	isActive?: boolean;
 }
 
-const CollectionActionItem: React.FC<CollectionActionItemProps> = ({
+const ProductActionItem: React.FC<ProductActionItemProps> = ({
 	option,
 	id,
 	isActive: isActive,
 }) => {
 	const router = useRouter();
 	const mutationFn =
-		option === "delete" ? deleteCollection : () => setActivateCollection(id);
+		option === "delete" ? deleteProduct : () => setActivateProduct(id);
 	const buttonText =
 		option === "delete"
-			? "Delete Collection"
+			? "Delete Product"
 			: isActive
 				? "Deactivate"
 				: "Activate";
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: async () => mutationFn(id),
-		onSuccess: () => {
+		onSuccess: (data) => {
+			if (data.status === "error") {
+				toast.error("An error occurred", { description: data.message });
+				return;
+			}
 			router.refresh();
-			toast.success(
-				`${option === "delete" ? "Deleted" : "Updated"} Successfully`
-			);
+			toast.success("Deleted Successfully");
 		},
 		onError: (err: any) => {
-			toast.error("An error occurred", {
-				description: err.message || "Server error",
-			});
+			const errorMessage =
+				err.response?.data?.errors?.message || err.message || "Server error";
+			toast.error("An error occurred", { description: errorMessage });
 		},
 	});
 
@@ -79,10 +81,10 @@ const CollectionActionItem: React.FC<CollectionActionItemProps> = ({
 					</AlertDialogTitle>
 					<AlertDialogDescription>
 						{option === "delete"
-							? "This will permanently delete your collection."
+							? "This will permanently delete your product."
 							: isActive
-								? "This will deactivate this collection"
-								: "This will activate this collection."}
+								? "This will deactivate this product"
+								: "This will activate this product."}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
@@ -103,4 +105,4 @@ const CollectionActionItem: React.FC<CollectionActionItemProps> = ({
 	);
 };
 
-export default CollectionActionItem;
+export default ProductActionItem;

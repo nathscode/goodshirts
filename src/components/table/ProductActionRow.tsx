@@ -9,10 +9,10 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
-	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import Link from "next/link";
+import ProductActionItem from "../common/ProductActionItem";
 
 interface ProductRowActionsProps<TData> {
 	row: Row<TData>;
@@ -44,13 +44,24 @@ export function ProductRowActions<TData>({
 						Edit
 					</Link>
 				</DropdownMenuItem>
-				<DropdownMenuItem asChild>activate</DropdownMenuItem>
+				<DropdownMenuItem asChild>
+					<ProductActionItem
+						option="toggleActive"
+						// @ts-ignore
+						id={row.original.id}
+						// @ts-ignore
+						isActive={row.original.isActive!}
+					/>
+				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 
 				<DropdownMenuSeparator />
-				<DropdownMenuItem>
-					Delete
-					<DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+				<DropdownMenuItem asChild>
+					<ProductActionItem
+						option="delete"
+						// @ts-ignore
+						id={row.original.id}
+					/>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

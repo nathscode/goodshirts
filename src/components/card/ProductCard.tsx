@@ -14,9 +14,23 @@ type Props = {
 
 const ProductCard = ({ product, userId }: Props) => {
 	const [imageLoading, setImageLoading] = useState(true);
-	const src = product.medias
+	const src = product.medias?.length
 		? product.medias[0].url
 		: "/images/placeholder-image.png";
+
+	// Safely check if variants exist
+	const hasVariants =
+		Array.isArray(product.variants) && product.variants.length > 0;
+	const firstVariant = hasVariants ? product.variants[0] : null;
+
+	// Check if firstVariant has variantPrices
+	const hasVariantPrices =
+		Array.isArray(firstVariant?.variantPrices) &&
+		firstVariant.variantPrices.length > 0;
+	const firstVariantPrice = hasVariantPrices
+		? firstVariant?.variantPrices[0]
+		: null;
+
 	return (
 		<AnimatedContent
 			distance={150}
@@ -28,8 +42,8 @@ const ProductCard = ({ product, userId }: Props) => {
 			scale={1.1}
 			threshold={0.2}
 		>
-			<div className="w-[300px] sm:w-[250px] h-full  snap-center flex-col flex items-center flex-none cursor-pointer group rounded-tl-lg rounded-xl">
-				<div className="w-full h-[300px] relative overflow-hidden rounded-xl bg-slate-50 ">
+			<div className="w-[300px] sm:w-[250px] h-full snap-center flex-col flex items-center flex-none cursor-pointer group rounded-tl-lg rounded-xl">
+				<div className="w-full h-[300px] relative overflow-hidden rounded-xl bg-slate-50">
 					<Image
 						fill
 						className={`object-cover object-center size-full transition-all aspect-square group-hover:scale-105 ${
@@ -41,18 +55,20 @@ const ProductCard = ({ product, userId }: Props) => {
 						src={src}
 						alt="Listing"
 					/>
-					<div className="absolute right-2 top-2">
-						<SaveProductSection
-							productId={product.id}
-							variantId={product.variants[0].id}
-							sizeId={product.variants[0].variantPrices[0].id}
-							initialState={{
-								isSavedByUser: product.saved.some(
-									(save) => save.userId === userId
-								),
-							}}
-						/>
-					</div>
+					{hasVariants && hasVariantPrices && (
+						<div className="absolute right-2 top-2">
+							<SaveProductSection
+								productId={product.id}
+								variantId={firstVariant!.id} // `!` because we already checked
+								sizeId={firstVariantPrice!.id}
+								initialState={{
+									isSavedByUser: product.saved.some(
+										(save) => save.userId === userId
+									),
+								}}
+							/>
+						</div>
+					)}
 				</div>
 				<Link href={`/products/${product.slug}`}>
 					<div className="flex flex-col space-y-1 w-full my-4">
@@ -62,14 +78,15 @@ const ProductCard = ({ product, userId }: Props) => {
 						<p className="text-sm text-pretty text-gray-600 line-clamp-1">
 							{product.description}
 						</p>
-						<ProductPrice
-							price={Number(product.variants[0].variantPrices[0].price)}
-							discountPrice={Number(
-								product.variants[0].variantPrices[0].discountPrice
-							)}
-							priceClassName="font-bold"
-							containerClassName="font-bold"
-						/>
+						{/* Render price only if variant exists */}
+						{hasVariants && hasVariantPrices && (
+							<ProductPrice
+								price={Number(firstVariantPrice!.price)}
+								discountPrice={Number(firstVariantPrice!.discountPrice)}
+								priceClassName="font-bold"
+								containerClassName="font-bold"
+							/>
+						)}
 					</div>
 				</Link>
 			</div>

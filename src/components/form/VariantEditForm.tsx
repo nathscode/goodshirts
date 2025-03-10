@@ -28,6 +28,7 @@ import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { productVariantPriceSchema } from "@/src/lib/validators/variant";
 import { getVariantById } from "@/src/actions/variant.action";
 import { useRouter } from "next/navigation";
+import DeleteVariant from "../common/DeleteVariant";
 
 interface VariantEditFormProps {
 	id: string;
@@ -132,76 +133,81 @@ const VariantEditForm = ({ id }: VariantEditFormProps) => {
 							<p className="text-red-500">{fetchError}</p>
 						</div>
 					) : (
-						<Form {...form}>
-							<form
-								onSubmit={form.handleSubmit(onSubmit)}
-								className="space-y-4 w-full"
-							>
-								<FormField
-									control={form.control}
-									name="size"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Size</FormLabel>
-											<FormControl>
-												<Input type="text" placeholder="Size" {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="price"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Price</FormLabel>
-											<FormControl>
-												<Input type="text" placeholder="Price" {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="discountPrice"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Discount Price</FormLabel>
-											<FormControl>
-												<Input
-													type="text"
-													placeholder="Discount Price"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="stockQuantity"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Stock Quantity</FormLabel>
-											<FormControl>
-												<Input
-													type="number"
-													placeholder="Stock Quantity"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<Button type="submit" disabled={isPending} className="w-full">
-									{isPending ? "Updating..." : "Update"}
-								</Button>
-							</form>
-						</Form>
+						<div className="flex flex-col w-full">
+							<div className="flex flex-col w-fit my-5">
+								<DeleteVariant id={id} option="priceVariant" />
+							</div>
+							<Form {...form}>
+								<form
+									onSubmit={form.handleSubmit(onSubmit)}
+									className="space-y-4 w-full"
+								>
+									<FormField
+										control={form.control}
+										name="size"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Size</FormLabel>
+												<FormControl>
+													<Input type="text" placeholder="Size" {...field} />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="price"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Price</FormLabel>
+												<FormControl>
+													<Input type="text" placeholder="Price" {...field} />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="discountPrice"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Discount Price</FormLabel>
+												<FormControl>
+													<Input
+														type="text"
+														placeholder="Discount Price"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="stockQuantity"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Stock Quantity</FormLabel>
+												<FormControl>
+													<Input
+														type="number"
+														placeholder="Stock Quantity"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<Button type="submit" disabled={isPending} className="w-full">
+										{isPending ? "Updating..." : "Update"}
+									</Button>
+								</form>
+							</Form>
+						</div>
 					)}
 				</ScrollArea>
 			</DialogContent>
