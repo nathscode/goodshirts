@@ -34,7 +34,7 @@ const CollectionBanner = ({ collection }: Props) => {
 						<div className="flex w-full justify-end items-end ">
 							<Button variant={"secondary"} asChild>
 								<Link
-									href="/"
+									href={`collections/${collection.slug}`}
 									aria-label=""
 									className="inline-flex items-center font-semibold tracking-wider transition-colors duration-200 text-teal-accent-400 hover:text-teal-accent-700"
 								>

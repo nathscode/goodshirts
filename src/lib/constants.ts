@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const ITEM_PER_PAGE = 18;
+export const ITEM_PER_PAGE = 12;
 
 export const colors = ["black", "gray", "white", "navy blue"];
 export const sizes = ["XS", "S", "M", "L", "XL", "XXL"];

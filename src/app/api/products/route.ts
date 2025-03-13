@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
 		});
 
 		const filteredProducts = productsList.filter(
-			(product) => product.variants && product.variants.length > 0
+			(product:any) => product.variants && product.variants.length > 0
 		);
 
 		if (!filteredProducts.length) {
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
 			where: eq(products.name, productName),
 		});
 		if (existingName) {
-			productName = `${generateRandomNumbers(7)}-${productName}`;
+			productName = `${productName}-${generateRandomNumbers(7)}`;
 		}
 		let productSlug = slugify(formattedName, { lower: true });
 		const existingProduct = await db.query.products.findFirst({

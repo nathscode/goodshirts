@@ -59,6 +59,8 @@
 		"dotenv": "^16.4.7",
 		"drizzle-cuid2": "^2.0.0",
 		"drizzle-orm": "^0.39.3",
+		"embla-carousel-autoplay": "^8.5.2",
+		"embla-carousel-react": "^8.5.2",
 		"framer-motion": "^11.18.0",
 		"lucide-react": "^0.474.0",
 		"moment": "^2.30.1",

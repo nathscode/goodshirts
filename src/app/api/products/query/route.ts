@@ -23,7 +23,8 @@ import {
 	inArray,
 } from "drizzle-orm";
 import db from "@/src/db";
-
+import { getLogger } from "@/src/lib/backend/logger";
+const logger = getLogger();
 export async function GET(request: Request) {
 	try {
 		const { searchParams } = new URL(request.url);
@@ -39,31 +40,28 @@ export async function GET(request: Request) {
 		const limit = Number(searchParams.get("limit")) || 18; // Fixed limit
 
 		// Validate pagination parameters
-		if (isNaN(page) || page < 1) {
+		if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1 || limit > 100) {
 			return NextResponse.json(
-				{ error: "Invalid page number" },
-				{ status: 400 }
-			);
-		}
-		if (isNaN(limit) || limit < 1 || limit > 100) {
-			return NextResponse.json(
-				{ error: "Invalid limit (1-100)" },
+				{ error: "Invalid pagination values" },
 				{ status: 400 }
 			);
 		}
 
-		// Define filter conditions
-		const conditions = [];
+		const conditions = [eq(products.isActive, true)]; // Always fetch active products
 
+		// Filter by category
 		if (category) {
+			const decodedCategory = decodeURIComponent(category.trim());
 			const existingCategory = await db.query.categories.findFirst({
-				where: eq(categories.name, category),
+				where: ilike(categories.name, decodedCategory),
 			});
+
 			if (existingCategory) {
 				conditions.push(eq(products.categoryId, existingCategory.id));
 			}
 		}
 
+		// Filter by price range
 		if (minPrice && maxPrice) {
 			conditions.push(
 				and(
@@ -73,6 +71,7 @@ export async function GET(request: Request) {
 			);
 		}
 
+		// Filter by size
 		if (size) {
 			conditions.push(eq(productVariantPrices.size, size));
 		}
@@ -90,6 +89,10 @@ export async function GET(request: Request) {
 			);
 		}
 
+		// Determine if we should fetch all active products
+		const shouldFetchAll =
+			!category && !minPrice && !maxPrice && !searchKey && !sort && !size;
+
 		// Get product IDs first
 		let productIdQuery = db
 			.select({ id: products.id })
@@ -102,35 +105,29 @@ export async function GET(request: Request) {
 			.leftJoin(categories, eq(products.categoryId, categories.id))
 			.leftJoin(subCategories, eq(products.subCategoryId, subCategories.id));
 
-		if (conditions.length > 0) {
-			//@ts-ignore
-			productIdQuery.where(and(...conditions));
+		// Apply filtering if necessary
+		if (!shouldFetchAll && conditions.length > 0) {
+			productIdQuery = productIdQuery.where(and(...conditions));
 		}
 
-		// Apply pagination
-		const productIdResults = await productIdQuery
-			.limit(limit)
-			.offset((page - 1) * limit);
-
-		// Extract product IDs
+		// Fetch matching product IDs
+		const productIdResults = await productIdQuery;
 		const productIds = productIdResults.map((p) => p.id);
 
+		console.log("🔎 Product IDs found:", productIds.length);
+
+		// If no matching products, return empty response
 		if (productIds.length === 0) {
 			return NextResponse.json(
 				{
 					products: [],
-					pagination: {
-						totalCount: 0,
-						page,
-						pageSize: limit,
-						totalPages: 0,
-					},
+					pagination: { totalCount: 0, page, pageSize: limit, totalPages: 0 },
 				},
 				{ status: 200 }
 			);
 		}
 
-		// Fetch full product details for these IDs
+		// Fetch full product details for the matched product IDs
 		let baseQuery = db
 			.select({
 				product: products,
@@ -148,7 +145,7 @@ export async function GET(request: Request) {
 			.leftJoin(reviews, eq(products.id, reviews.productId))
 			.where(inArray(products.id, productIds));
 
-		// Apply sorting **AFTER** fetching the full products
+		// Apply sorting
 		switch (sort) {
 			case "popularity":
 				baseQuery = baseQuery.orderBy(desc(products.totalSales));
@@ -191,11 +188,7 @@ export async function GET(request: Request) {
 			const productId = row.product.id;
 
 			if (!productMap.has(productId)) {
-				productMap.set(productId, {
-					...row.product,
-					variants: [],
-					medias: [],
-				});
+				productMap.set(productId, { ...row.product, variants: [], medias: [] });
 			}
 
 			const product = productMap.get(productId);
@@ -215,7 +208,6 @@ export async function GET(request: Request) {
 					const priceExists = existingVariant.variantPrices.some(
 						(p: any) => p.id === row.variantPrice?.id
 					);
-
 					if (!priceExists) {
 						existingVariant.variantPrices.push(row.variantPrice);
 					}
@@ -227,7 +219,6 @@ export async function GET(request: Request) {
 				const mediaExists = product.medias.some(
 					(m: any) => m.id === row.media?.id
 				);
-
 				if (!mediaExists) {
 					product.medias.push(row.media);
 				}
@@ -237,32 +228,29 @@ export async function GET(request: Request) {
 		// Convert the map to an array of distinct products
 		const distinctProducts = Array.from(productMap.values());
 
-		// Get total count
-		const totalCountQuery = await db
-			.select({ count: count(products.id) })
-			.from(products)
-			.leftJoin(categories, eq(products.categoryId, categories.id))
-			.leftJoin(subCategories, eq(products.subCategoryId, subCategories.id))
-			.where(conditions.length > 0 ? and(...conditions) : undefined);
-
-		const totalCount = totalCountQuery[0]?.count || 0;
+		// **Filter out products without variants BEFORE pagination**
+		const filteredProducts = distinctProducts.filter(
+			(product: any) => product.variants.length > 0
+		);
+		const totalCount = filteredProducts.length;
 		const totalPages = Math.ceil(totalCount / limit);
 
-		// Build response
+		// Apply pagination **after filtering**
+		const paginatedProducts = filteredProducts.slice(
+			(page - 1) * limit,
+			page * limit
+		);
+
+		// Return the final response
 		return NextResponse.json(
 			{
-				products: distinctProducts,
-				pagination: {
-					totalCount,
-					page,
-					pageSize: limit,
-					totalPages,
-				},
+				products: paginatedProducts,
+				pagination: { totalCount, page, pageSize: limit, totalPages },
 			},
 			{ status: 200 }
 		);
 	} catch (error) {
-		console.error("Error fetching products:", error);
+		logger.error("❌ Error fetching products:", error);
 		return NextResponse.json(
 			{ error: "Failed to fetch products" },
 			{ status: 500 }

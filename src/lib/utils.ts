@@ -15,6 +15,13 @@ export function formatDate(dateString: string): string {
 	return format(date, "dd/MM/yyyy");
 }
 
+export const formatDateTime = (date: Date | string | number): string => {
+	const parsedDate =
+		typeof date === "string" || typeof date === "number"
+			? new Date(date)
+			: date;
+	return format(parsedDate, "MMM dd, yyyy hh:mm a");
+};
 export function formatDayDate(dateString: string): string {
 	const date = parseISO(dateString);
 	return format(date, "EEEE, dd-MM-yyyy");
@@ -267,3 +274,21 @@ export function calculateDiscountPercentage(
 	// Round to the nearest whole number
 	return Math.round(discountPercentage);
 }
+
+export const getExpirationStatus = (endDate: string | Date): string => {
+	const today = new Date();
+	const end = new Date(endDate);
+
+	today.setHours(0, 0, 0, 0);
+	end.setHours(0, 0, 0, 0);
+
+	const diffInTime = end.getTime() - today.getTime();
+	const diffInDays = Math.floor(diffInTime / (1000 * 60 * 60 * 24));
+
+	if (diffInDays < 0) return "Expired";
+	if (diffInDays === 0) return "Expiring today";
+	if (diffInDays === 2 || diffInDays === 3)
+		return `${diffInDays} days remaining`;
+
+	return "";
+};

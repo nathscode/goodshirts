@@ -15,10 +15,23 @@ const ProductCardMini = ({ product }: Props) => {
 		? product.medias[0].url
 		: "/images/placeholder-image.png";
 
-	const discountPercentage = calculateDiscountPercentage(
-		Number(product.variants[0].variantPrices[0].price),
-		Number(product.variants[0].variantPrices[0].discountPrice)
-	);
+	const hasVariants =
+		Array.isArray(product.variants) && product.variants.length > 0;
+	const firstVariant = hasVariants ? product.variants[0] : null;
+
+	const hasVariantPrices =
+		Array.isArray(firstVariant?.variantPrices) &&
+		firstVariant.variantPrices.length > 0;
+	const firstVariantPrice = hasVariantPrices
+		? firstVariant?.variantPrices[0]
+		: null;
+	const discountPercentage = firstVariantPrice
+		? calculateDiscountPercentage(
+				Number(firstVariantPrice.price),
+				Number(firstVariantPrice.discountPrice)
+			)
+		: 0; // Default to 0 if no discount price is available
+
 	return (
 		<div className="relative flex w-[250px]  max-w-xs flex-col overflow-hidden  bg-white">
 			<Link
@@ -53,13 +66,13 @@ const ProductCardMini = ({ product }: Props) => {
 					<StarRating numberOfStars={4} />
 				</div>
 				<div className="mt-2 mb-5 flex items-center justify-between">
-					<ProductPrice
-						price={Number(product.variants[0].variantPrices[0].price)}
-						discountPrice={Number(
-							product.variants[0].variantPrices[0].discountPrice
-						)}
-						priceClassName="text-gray-500 font-normal"
-					/>
+					{hasVariants && hasVariantPrices && (
+						<ProductPrice
+							price={Number(firstVariantPrice!.price)}
+							discountPrice={Number(firstVariantPrice!.discountPrice)}
+							priceClassName="text-gray-500 font-normal"
+						/>
+					)}
 				</div>
 				<Link
 					href={`products/${product.slug}`}

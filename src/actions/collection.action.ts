@@ -68,6 +68,58 @@ export async function getAllCollectionProducts(): Promise<
 	}
 }
 
+export default async function fetchCollectionBySlug(
+	slug: string
+): Promise<CollectionWithExtra | null> {
+	try {
+		noStore();
+
+		if (!slug) {
+			return null;
+		}
+		const collection = await db.query.collections.findFirst({
+			where: eq(collections.slug, slug),
+			with: {
+				collectionProducts: {
+					with: {
+						product: {
+							with: {
+								category: true,
+								subCategory: true,
+								variants: {
+									with: {
+										variantPrices: true,
+									},
+								},
+								medias: true,
+								reviews: {
+									with: {
+										user: true,
+									},
+								},
+								saved: {
+									with: {
+										user: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!collection) {
+			return null;
+		}
+		const plainCollection = JSON.parse(JSON.stringify(collection));
+		return plainCollection;
+	} catch (error) {
+		logger.error("Database Error:", error);
+		throw new Error("Failed to fetch collection");
+	}
+}
+
 export async function setActivateCollection(collectionId: string) {
 	const session = await getCurrentUser();
 	if (!session) {

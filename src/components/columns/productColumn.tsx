@@ -1,11 +1,11 @@
 "use client";
 
-import { ProductType } from "@/src/db/schema";
+import { ProductWithCategory } from "@/src/db/schema";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { ProductRowActions } from "../table/ProductActionRow";
 
-export const ProductColumns: ColumnDef<ProductType>[] = [
+export const ProductColumns: ColumnDef<ProductWithCategory>[] = [
 	{
 		accessorKey: "sn",
 		header: "SN",
@@ -24,6 +24,11 @@ export const ProductColumns: ColumnDef<ProductType>[] = [
 		),
 	},
 
+	{
+		accessorKey: "category",
+		header: "Category",
+		cell: ({ row }) => row.original.category.name,
+	},
 	{
 		accessorKey: "sku",
 		header: "Sku",

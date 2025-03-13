@@ -1,16 +1,22 @@
 "use server";
 
-import { ProductType, products } from "@/src/db/schema";
+import { ProductType, ProductWithCategory, products } from "@/src/db/schema";
 import { desc } from "drizzle-orm";
 import db from "../db";
 import { getLogger } from "../lib/backend/logger";
 
 const logger = getLogger();
 
-export default async function getAllProducts(): Promise<ProductType[] | null> {
+export default async function getAllProducts(): Promise<
+	ProductWithCategory[] | null
+> {
 	try {
 		const allProducts = await db.query.products.findMany({
 			orderBy: [desc(products.createdAt)],
+			with: {
+				category: true,
+				subCategory: true,
+			},
 		});
 
 		if (!allProducts) {

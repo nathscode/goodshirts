@@ -618,11 +618,11 @@ export type OrderWithExtra = OrderType & {
 	address: AddressType;
 	items: OrderItemWithExtra[];
 };
-export type CollectionWithExtra = CollectionType & {
-	collectionProducts: {
-		product: ProductType;
-	}[];
-};
 export type ProductWithMedia = ProductType & {
 	medias: MediaType[];
+};
+export type CollectionWithExtra = CollectionType & {
+	collectionProducts: {
+		product: ProductWithExtra;
+	}[];
 };
