@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
 		});
 
 		const filteredProducts = productsList.filter(
-			(product:any) => product.variants && product.variants.length > 0
+			(product: any) => product.variants && product.variants.length > 0
 		);
 
 		if (!filteredProducts.length) {
@@ -64,10 +64,9 @@ export async function GET(req: NextRequest) {
 			);
 		}
 
-		return new NextResponse(
-			JSON.stringify({ data: filteredProducts }),
-			{ status: 200 }
-		);
+		return new NextResponse(JSON.stringify({ data: filteredProducts }), {
+			status: 200,
+		});
 	} catch (error: any) {
 		console.error("Error fetching products:", error);
 		return new NextResponse(
@@ -76,7 +75,6 @@ export async function GET(req: NextRequest) {
 		);
 	}
 }
-
 
 export async function POST(req: NextRequest) {
 	const formData = await req.formData();
@@ -243,12 +241,15 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
 	try {
+		// Parse form data
 		const formData = await req.formData();
-		const name: string = formData.get("name") as string;
-		const slug: string = formData.get("slug") as string;
-		const description: string = formData.get("description") as string;
-		const categoryId: string = formData.get("categoryId") as string;
-		const subCategoryId: string = formData.get("SubCategoryId") as string;
+		const name = formData.get("name") as string;
+		const slug = formData.get("slug") as string;
+		const description = formData.get("description") as string;
+		const categoryId = formData.get("categoryId") as string;
+		const subCategoryId = formData.get("SubCategoryId") as string;
+
+		// Auth Check
 		const session = await getCurrentUser();
 		if (!session) {
 			return handlerNativeResponse(
@@ -265,7 +266,7 @@ export async function PATCH(req: NextRequest) {
 			);
 		}
 
-		// Validate Required Fields
+		// Required Fields Validation
 		if (!slug || !name || !categoryId || !subCategoryId) {
 			return handlerNativeResponse(
 				{ status: 400, errors: { message: "All fields are required" } },
@@ -283,7 +284,7 @@ export async function PATCH(req: NextRequest) {
 				}),
 			]);
 
-		// Validate Product and Categories
+		// Existence checks
 		if (!existingProduct) {
 			return handlerNativeResponse(
 				{ status: 404, errors: { message: "Product not found" } },
@@ -300,31 +301,47 @@ export async function PATCH(req: NextRequest) {
 			);
 		}
 
-		// Check if the name has changed
+		// Format name and prepare new slug
 		const formattedName = trimAndLowercase(name);
-		let newSlug = slugify(formattedName, { lower: true });
+		let finalProductName = formattedName;
+		let finalSlug = slugify(formattedName, { lower: true });
 
-		if (existingProduct.name !== formattedName) {
-			// Name has changed, check if the new name's slug already exists
-			const slugExists = await db.query.products.findFirst({
-				where: and(eq(products.slug, newSlug), not(eq(products.slug, slug))),
+		// Check if name has changed
+		const isNameChanged = existingProduct.name !== formattedName;
+
+		if (isNameChanged) {
+			// Check if name already exists (excluding current product)
+			const existingName = await db.query.products.findFirst({
+				where: and(
+					eq(products.name, formattedName),
+					not(eq(products.id, existingProduct.id))
+				),
 			});
+			if (existingName) {
+				finalProductName += `-${generateRandomNumbers(7)}`;
+			}
 
-			// If slug exists, append a random string to make it unique
-			if (slugExists) {
-				newSlug += `-${generateRandomString()}`;
+			// Check if slug already exists (excluding current product)
+			const existingSlug = await db.query.products.findFirst({
+				where: and(
+					eq(products.slug, finalSlug),
+					not(eq(products.id, existingProduct.id))
+				),
+			});
+			if (existingSlug) {
+				finalSlug += `-${generateRandomString()}`;
 			}
 		} else {
-			// If the name hasn't changed, retain the existing slug
-			newSlug = existingProduct.slug;
+			// Keep existing slug if name hasn't changed
+			finalSlug = existingProduct.slug;
 		}
 
-		// Update Product
+		// Perform update
 		await db
 			.update(products)
 			.set({
-				name: formattedName,
-				slug: newSlug,
+				name: finalProductName,
+				slug: finalSlug,
 				description,
 				categoryId: existingCategory.id,
 				subCategoryId: existingSubCategory.id,
@@ -332,8 +349,8 @@ export async function PATCH(req: NextRequest) {
 			})
 			.where(eq(products.slug, slug));
 
-		logger.info(`Product ${slug} updated successfully. New slug: ${newSlug}`);
-		return NextResponse.json({ status: "success", slug: newSlug });
+		logger.info(`Product ${slug} updated successfully. New slug: ${finalSlug}`);
+		return NextResponse.json({ status: "success", slug: finalSlug });
 	} catch (error: any) {
 		logger.error("PRODUCT UPDATE ERROR:", error);
 
@@ -356,4 +373,3 @@ export async function PATCH(req: NextRequest) {
 		);
 	}
 }
-

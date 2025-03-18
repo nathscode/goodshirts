@@ -1,12 +1,11 @@
 "use client";
-import { Search, User2 } from "lucide-react";
+import { User2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { SiteLogo } from "./SiteLogo";
-import { CartSheet } from "./modal/CartSheet";
+import { useState } from "react";
 import { CustomUser } from "../types";
+import { SiteLogo } from "./SiteLogo";
 import AccountDropdown from "./dropdown/account-dropdown";
-import SearchSection from "./SearchSection";
+import { CartSheet } from "./modal/CartSheet";
 import { MobileSheet } from "./modal/MobileSheet";
 import SearchModal from "./modal/SearchModal";
 
@@ -19,7 +18,6 @@ const NavbarClient = ({ session }: Props) => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isCartSheetOpen, setIsCartSheetOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
-	const [showMobileSearch, setShowMobileSearch] = useState(false);
 
 	return (
 		<>

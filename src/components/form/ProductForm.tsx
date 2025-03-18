@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
 import { buttonVariants } from "@/src/components/ui/button";
 import {
 	Form,
@@ -12,10 +11,9 @@ import {
 	FormMessage,
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
-import { ProductType, ProductWithExtra } from "@/src/db/schema";
+import { ProductWithExtra } from "@/src/db/schema";
 import useFetchCategories from "@/src/hooks/use-fetch-categories";
 import useFetchSubCategories from "@/src/hooks/use-fetch-sub-categories";
-import { baseURL } from "@/src/lib/constants";
 import { compressImage } from "@/src/lib/utils";
 import {
 	ProductSchema,
@@ -24,11 +22,12 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { ImageIcon, XIcon } from "lucide-react";
+import { ImageIcon, Loader2, XIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useDropzone } from "react-dropzone";
-import { useForm } from "react-hook-form";
+import React, { useCallback, useEffect, useState } from "react";
+import { DropEvent, FileRejection, useDropzone } from "react-dropzone";
+import { SubmitErrorHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import BackButton from "../common/BackButton";
@@ -45,15 +44,22 @@ import {
 } from "../ui/select";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
-import { Loader2 } from "lucide-react";
 
-const ImageSchema = z.object({
-	file: z.string(),
+const NewImageSchema = z.object({
+	isNew: z.literal(true), // TypeScript expects exactly `true`
+	file: z.instanceof(File),
 	preview: z.string().optional(),
-	isNew: z.boolean().optional(),
 });
 
-type ImageSchemaInfer = z.infer<typeof ImageSchema>;
+const ExistingImageSchema = z.object({
+	isNew: z.literal(false).optional(), // expects `false` or missing
+	file: z.string(),
+	preview: z.string().optional(),
+});
+
+const ImageSchema = z.union([NewImageSchema, ExistingImageSchema]);
+
+type ImageSchemaType = z.infer<typeof ImageSchema>;
 
 const acceptedFileTypes = ["image/png", "image/jpeg", "image/jpg", "video/mp4"];
 const maxFileSize = 10 * 1024 * 1024; // 10MB
@@ -67,11 +73,11 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 		? initialData.medias.map((media) => ({
 				file: media.url,
 				preview: media.url,
-				isNew: false,
+				isNew: false as false,
 			}))
 		: [];
 
-	const [images, setImages] = useState<ImageSchemaInfer[]>(initialImage);
+	const [images, setImages] = useState<ImageSchemaType[]>(initialImage);
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
 
 	const {
@@ -85,16 +91,20 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 		error: subCategoriesError,
 	} = useFetchSubCategories(selectedCategory);
 
-	const onDrop = useCallback((acceptedFiles: File[]) => {
+	const onDrop = (
+		acceptedFiles: File[],
+		fileRejections: FileRejection[],
+		event: DropEvent
+	) => {
 		// @ts-ignore
-		const newImages: ImageSchemaInfer[] = acceptedFiles.map((file) => ({
+		const newImages: ImageSchemaType[] = acceptedFiles.map((file) => ({
 			file,
 			preview: URL.createObjectURL(file),
 			isNew: true,
 		}));
 
 		setImages((prevImages) => [...prevImages, ...newImages]);
-	}, []);
+	};
 
 	const removeImage = useCallback((index: number) => {
 		setImages((prevImages) => {
@@ -130,11 +140,20 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 				},
 	});
 
+	useEffect(() => {
+		if (initialData) {
+			form.setValue("name", initialData?.name!);
+			form.setValue("description", initialData?.description!);
+			form.setValue("category", initialData?.categoryId!);
+			form.setValue("subCategory", initialData?.subCategoryId!);
+		}
+	}, [initialData]);
+
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (formData: FormData) => {
 			const { data } = initialData
-				? await axios.patch(`${baseURL}/products`, formData)
-				: await axios.post(`${baseURL}/products`, formData);
+				? await axios.patch(`/api/products`, formData)
+				: await axios.post(`/api/products`, formData);
 			return data;
 		},
 		onSuccess: (data: any) => {
@@ -160,43 +179,36 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 			toast.error("Please select an image");
 			return;
 		}
+
 		const formData = new FormData();
 		formData.append("name", values.name);
 		formData.append("description", values.description);
 		formData.append("categoryId", values.category);
 		formData.append("SubCategoryId", values.subCategory);
 		formData.append("slug", values.slug || "");
-
-		// Process images
-		const processedImages = await Promise.all(
+		await Promise.all(
 			images.map(async (image) => {
 				if (image.isNew) {
-					// Compress new images (file is already a File object)
-					return await compressImage(image.file);
+					const file = await compressImage(image.file);
+					formData.append("images", file);
 				} else {
-					// Fetch existing images from URL and convert to File object
-					const response = await fetch(image.file);
-					const blob = await response.blob();
-					const file = new File([blob], "existing-image", { type: blob.type });
-					return file;
+					formData.append("existingImages", image.file);
 				}
 			})
 		);
 
-		// Append all images to formData
-		processedImages.forEach((file) => {
-			// @ts-ignore
-			formData.append("images", file);
-		});
-
-		// Log formData for debugging
+		// Debugging
 		// for (const [key, value] of formData.entries()) {
 		// 	console.log(key, value);
 		// }
 
+		// Submit formData
 		mutate(formData);
 	};
 
+	const onFormError: SubmitErrorHandler<ProductSchemaInfer> = (e: any) => {
+		console.log(e);
+	};
 	const handleKeyPress = (
 		e:
 			| React.KeyboardEvent<HTMLInputElement>
@@ -269,7 +281,10 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 				)}
 				<Separator className="bg-gray-400 mt-4 mb-7" />
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+					<form
+						onSubmit={form.handleSubmit(onSubmit, onFormError)}
+						className="space-y-4"
+					>
 						<FormField
 							control={form.control}
 							name="name"
@@ -316,6 +331,11 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 													</SelectContent>
 												</Select>
 											</FormControl>
+											{initialData && (
+												<FormDescription>
+													{initialData.category.name}
+												</FormDescription>
+											)}
 											<FormMessage className="text-red-1" />
 										</FormItem>
 									)}
@@ -362,6 +382,11 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 													</SelectContent>
 												</Select>
 											</FormControl>
+											{initialData && (
+												<FormDescription>
+													{initialData.subCategory.name}
+												</FormDescription>
+											)}
 											<FormMessage />
 										</FormItem>
 									)}
@@ -391,9 +416,7 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 								)}
 							/>
 						</div>
-						{initialData ? (
-							<div>Edit Image</div>
-						) : (
+						{initialData ? null : (
 							<div className="flex flex-col">
 								<Label className="mb-4">Product Image</Label>
 								<div

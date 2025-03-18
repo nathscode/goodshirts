@@ -16,7 +16,6 @@ const SortingFilter = (props: Props) => {
 	const router = useRouter();
 	const params = useSearchParams();
 
-	// Handle sorting change
 	const handleSortChange = useCallback(
 		(sortValue: string) => {
 			let currentQuery = {};
@@ -29,7 +28,6 @@ const SortingFilter = (props: Props) => {
 				sort: sortValue,
 			};
 
-			// Remove the sort parameter if it is already selected
 			if (params?.get("sort") === sortValue) {
 				delete updatedQuery.sort;
 			}

@@ -201,7 +201,7 @@ export function deepClone(obj: any) {
 
 	return clone;
 }
-export const compressImage = async (file: any) => {
+export const compressImage = async (file: File): Promise<File> => {
 	return new Promise((resolve, reject) => {
 		new Compressor(file, {
 			quality: 0.6,
