@@ -1,10 +1,10 @@
 "use client";
 
 import { VariantsWithExtra } from "@/src/db/schema";
-import { ColumnDef } from "@tanstack/react-table";
-import { VariantRowActions } from "../table/VariantActionRow";
 import { formatCurrency } from "@/src/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
 import VariantEditForm from "../form/VariantEditForm";
+import DeleteVariant from "../common/DeleteVariant";
 
 export const VariantColumns: ColumnDef<VariantsWithExtra>[] = [
 	{
@@ -59,6 +59,11 @@ export const VariantColumns: ColumnDef<VariantsWithExtra>[] = [
 		},
 	},
 	{
+		accessorKey: "sku", // Correct accessor
+		header: "Sku",
+		cell: ({ row }) => <span className="font-medium">{row.original.sku}</span>,
+	},
+	{
 		id: "actions",
 		header: "Actions",
 		cell: ({ row }) => {
@@ -77,5 +82,10 @@ export const VariantColumns: ColumnDef<VariantsWithExtra>[] = [
 				"No Sizes"
 			);
 		},
+	},
+	{
+		accessorKey: "delete", // Correct accessor
+		header: "Delete",
+		cell: ({ row }) => <DeleteVariant id={row.original.id} option="variant" />,
 	},
 ];

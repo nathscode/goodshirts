@@ -1,11 +1,16 @@
 import db from "@/src/db";
-import { products } from "@/src/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { PgTable, AnyPgColumn } from "drizzle-orm/pg-core";
 
 interface SKUConfig {
 	prefix?: string;
 	paddingLength?: number;
 	separator?: string;
+}
+
+// 🔹 Type constraint: Table must have 'sku' column
+interface TableWithSKU<T extends AnyPgColumn = AnyPgColumn> extends PgTable {
+	sku: T;
 }
 
 class SKUGenerationError extends Error {
@@ -33,7 +38,7 @@ export class SKUGenerator {
 		return SKUGenerator.instance;
 	}
 
-	// 🔹 Function to generate SKU from product name
+	// 🔹 Format SKU based on product name
 	private formatSKU(name: string): string {
 		const words = name.split(" ").filter((word) => word.length > 2);
 
@@ -42,23 +47,24 @@ export class SKUGenerator {
 				"Product name is too short for SKU generation"
 			);
 
-		const firstPart = words[0].substring(0, 3).toUpperCase(); // First three letters of first word
-		const lastPart = words[words.length - 1].substring(0, 3).toUpperCase(); // First three letters of last word
+		const firstPart = words[0].substring(0, 3).toUpperCase();
+		const lastPart = words[words.length - 1].substring(0, 3).toUpperCase();
 
 		return `${lastPart}-${firstPart}`;
 	}
 
-	// 🔹 Generate SKU using Drizzle ORM
-	public async generateSKU(
+	// 🔹 Generate SKU
+	public async generateSKU<T extends AnyPgColumn>(
 		name: string,
+		table: TableWithSKU<T>,
 		config?: Partial<SKUConfig>
 	): Promise<string> {
 		try {
 			const finalConfig = { ...this.defaultConfig, ...config };
 			const baseSKU = this.formatSKU(name);
 
-			// Get product count to generate sequence
-			const count = await this.getProductCount(baseSKU);
+			// Get count of existing SKUs with same prefix
+			const count = await this.getProductCount(baseSKU, table);
 			const sequentialNumber = (count + 1)
 				.toString()
 				.padStart(finalConfig.paddingLength || 3, "0");
@@ -68,9 +74,10 @@ export class SKUGenerator {
 			);
 
 			// Ensure SKU is unique
-			const exists = await this.isSKUExists(sku);
+			const exists = await this.isSKUExists(sku, table);
 			if (exists) {
-				return this.generateSKU(name, {
+				// Recursively try with longer padding
+				return this.generateSKU(name, table, {
 					...config,
 					paddingLength: finalConfig.paddingLength! + 1,
 				});
@@ -79,26 +86,37 @@ export class SKUGenerator {
 			return sku;
 		} catch (error) {
 			throw new SKUGenerationError(
-				`Failed to generate SKU: ${error instanceof Error ? error.message : "Unknown error"}`
+				`Failed to generate SKU: ${
+					error instanceof Error ? error.message : "Unknown error"
+				}`
 			);
 		}
 	}
 
-	// 🔹 Check if SKU already exists using Drizzle ORM
-	public async isSKUExists(sku: string): Promise<boolean> {
-		const existingProduct = await db.query.products.findFirst({
-			where: eq(products.sku, sku),
-		});
-		return !!existingProduct;
+	// 🔹 Check if SKU exists
+	public async isSKUExists<T extends AnyPgColumn>(
+		sku: string,
+		table: TableWithSKU<T>
+	): Promise<boolean> {
+		const existingRecord = await db
+			.select()
+			.from(table)
+			.where(eq(table.sku, sku))
+			.limit(1);
+
+		return existingRecord.length > 0;
 	}
 
 	// 🔹 Get product count based on SKU prefix
-	private async getProductCount(skuPrefix: string): Promise<number> {
+	private async getProductCount<T extends AnyPgColumn>(
+		skuPrefix: string,
+		table: TableWithSKU<T>
+	): Promise<number> {
 		try {
 			const result = await db
 				.select({ count: sql<number>`COUNT(*)` })
-				.from(products)
-				.where(sql`${products.sku} LIKE ${skuPrefix + "%"}`);
+				.from(table)
+				.where(sql`${table.sku} LIKE ${skuPrefix + "%"}`);
 
 			return result[0]?.count || 0;
 		} catch (error) {
@@ -106,9 +124,10 @@ export class SKUGenerator {
 			return 0;
 		}
 	}
+
 	// 🔹 Validate SKU format
 	public validateSKU(sku: string): boolean {
-		const skuRegex = /^[A-Z]{3}-[A-Z]{3}-\d{3,4}$/;
+		const skuRegex = /^[A-Z]{3}-[A-Z]{3}-\d{3,}$/;
 		return skuRegex.test(sku);
 	}
 

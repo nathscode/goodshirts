@@ -218,9 +218,9 @@ export const compressImage = async (file: File): Promise<File> => {
 	});
 };
 
-export const generateProductSKU = async (name: string) => {
+export const generateProductSKU = async (name: string, table: any) => {
 	const skuGenerator = await SKUGenerator.getInstance();
-	const sku = await skuGenerator.generateSKU(name);
+	const sku = await skuGenerator.generateSKU(name, table);
 	return sku;
 };
 

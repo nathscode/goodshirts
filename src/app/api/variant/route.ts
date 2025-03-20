@@ -54,6 +54,7 @@ async function findProductBySlug(productSlug: string) {
 	}
 	return product;
 }
+// ,
 
 // Helper function to insert product variants and their prices
 async function insertProductVariants(
@@ -62,32 +63,66 @@ async function insertProductVariants(
 	variants: variantSchemaInfer["variants"]
 ) {
 	return await db.transaction(async (tx) => {
-		const insertedVariants = [];
-		for (const variant of variants) {
-			const [insertedVariant] = await tx
-				.insert(productVariants)
-				.values({
-					productId,
-					color: variant.color,
-					sku: await generateProductSKU(`${productName} ${variant.color}`),
-				})
-				.returning({ id: productVariants.id });
+		try {
+			const insertedVariants = [];
+			for (const variant of variants) {
+				let retries = 3; // Number of retries
+				let insertedVariant: any;
 
-			if (insertedVariant?.id) {
-				const priceVariants = variant.productPriceVariants.map(
-					(priceVariant) => ({
-						variantId: insertedVariant.id,
-						size: trimAndUppercase(priceVariant.size!),
-						price: priceVariant.price.toString(),
-						discountPrice: priceVariant.discountPrice?.toString() || null,
-						stockQuantity: priceVariant.stockQuantity,
-					})
-				);
-				await tx.insert(productVariantPrices).values(priceVariants);
-				insertedVariants.push(insertedVariant);
+				while (retries > 0) {
+					try {
+						const sku = await generateProductSKU(
+							`${productName} ${variant.color}`,
+							productVariants
+						);
+
+						[insertedVariant] = await tx
+							.insert(productVariants)
+							.values({
+								productId,
+								color: variant.color,
+								sku: sku,
+							})
+							.returning({ id: productVariants.id });
+
+						break; // Exit the loop if insertion succeeds
+					} catch (error: any) {
+						if (
+							error.message.includes(
+								"duplicate key value violates unique constraint"
+							)
+						) {
+							retries--;
+							if (retries === 0) {
+								throw new Error(
+									"Failed to insert variant after multiple retries"
+								);
+							}
+						} else {
+							throw error; // Re-throw other errors
+						}
+					}
+				}
+
+				if (insertedVariant?.id) {
+					const priceVariants = variant.productPriceVariants.map(
+						(priceVariant) => ({
+							variantId: insertedVariant.id,
+							size: trimAndUppercase(priceVariant.size!),
+							price: priceVariant.price.toString(),
+							discountPrice: priceVariant.discountPrice?.toString() || null,
+							stockQuantity: priceVariant.stockQuantity,
+						})
+					);
+					await tx.insert(productVariantPrices).values(priceVariants);
+					insertedVariants.push(insertedVariant);
+				}
 			}
+			return insertedVariants;
+		} catch (error) {
+			await tx.rollback(); // Roll back the transaction on error
+			throw error; // Re-throw the error to be handled by the caller
 		}
-		return insertedVariants;
 	});
 }
 export async function POST(req: NextRequest) {

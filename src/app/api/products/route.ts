@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
 		if (existingProduct) {
 			productSlug += `-${generateRandomString()}`;
 		}
-		const sku = await generateProductSKU(formattedName);
+		const sku = await generateProductSKU(formattedName, products);
 
 		// Upload Images to S3 in Parallel
 		const uploadPromises = images.map(async (image) => {
