@@ -42,7 +42,7 @@ async function sendOrderConfirmationEmails(email: string, orderDetails: any) {
 	try {
 		await sendEmail(email, "An order was created.", emailHtml);
 		await sendEmail(
-			"michaelnathrm@gmail.com",
+			"goodshirtsafrica@gmail.com",
 			"An order was created.",
 			emailHtml
 		);
