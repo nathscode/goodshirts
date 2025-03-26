@@ -38,7 +38,7 @@ const HomeProductContent = () => {
 	if (error) {
 		return (
 			<div className="flex flex-col justify-center items-center my-5">
-				Error retrieving recent products
+				Error retrieving recent products {error.message}
 			</div>
 		);
 	}

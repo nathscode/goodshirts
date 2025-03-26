@@ -189,11 +189,6 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 			formData.append("images", file);
 		});
 
-		// Log formData for debugging
-		for (const [key, value] of formData.entries()) {
-			console.log(key, value);
-		}
-
 		// Submit the form data
 		mutate(formData);
 	};

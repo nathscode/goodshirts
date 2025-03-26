@@ -3,9 +3,9 @@ import getCurrentUser from "@/src/actions/getCurrentUser";
 import { s3 } from "@/src/actions/getS3Client";
 import db from "@/src/db";
 import { categories, medias, products, subCategories } from "@/src/db/schema";
+import { SKUGenerator } from "@/src/lib/backend/generate-sku";
 import { getLogger } from "@/src/lib/backend/logger";
 import {
-	generateProductSKU,
 	generateRandomNumbers,
 	generateRandomString,
 	getRandomNumber,
@@ -21,6 +21,11 @@ import { ZodError } from "zod";
 const logger = getLogger();
 const Bucket = process.env.TEBI_BUCKET_NAME;
 
+export const generateProductSKU = async (name: string, table: any) => {
+	const skuGenerator = await SKUGenerator.getInstance();
+	const sku = await skuGenerator.generateSKU(name, table);
+	return sku;
+};
 export async function GET(req: NextRequest) {
 	try {
 		// Fetch all active products
@@ -57,11 +62,10 @@ export async function GET(req: NextRequest) {
 			(product: any) => product.variants && product.variants.length > 0
 		);
 
-		if (!filteredProducts.length) {
-			return new NextResponse(
-				JSON.stringify({ status: 404, message: "No products found" }),
-				{ status: 404 }
-			);
+		if (!filteredProducts.length || filteredProducts.length === 0) {
+			return new NextResponse(JSON.stringify({ status: 200, data: [] }), {
+				status: 200,
+			});
 		}
 
 		return new NextResponse(JSON.stringify({ data: filteredProducts }), {

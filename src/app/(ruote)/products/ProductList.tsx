@@ -23,8 +23,6 @@ const fetchProducts = async (
 		? `/api/products/query?${queryString}&page=${page}&limit=${limit}`
 		: `/api/products/query?page=${page}&limit=${limit}`;
 
-	console.log("Fetching products from:", url);
-
 	const { data } = await axios.get<{
 		products: ProductWithExtra[];
 		pagination: {

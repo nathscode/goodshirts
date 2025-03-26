@@ -51,7 +51,6 @@ export function TopCategoriesFake({ categories }: TopCategoriesProps) {
 		{ name: "shirts", orders: 1, fill: "#ff006e" },
 		{ name: "shoes", orders: 1, fill: "#8338ec" },
 	];
-	console.log({ chartData });
 
 	const chartConfig = {
 		shirts: {
@@ -63,8 +62,6 @@ export function TopCategoriesFake({ categories }: TopCategoriesProps) {
 			color: "#8338ec",
 		},
 	} satisfies ChartConfig;
-
-	console.log(chartConfig);
 
 	return (
 		<Card className="flex flex-col">

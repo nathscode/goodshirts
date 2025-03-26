@@ -1,4 +1,3 @@
-import db from "@/src/db";
 import { eq, sql } from "drizzle-orm";
 import { PgTable, AnyPgColumn } from "drizzle-orm/pg-core";
 
@@ -98,6 +97,8 @@ export class SKUGenerator {
 		sku: string,
 		table: TableWithSKU<T>
 	): Promise<boolean> {
+		const { default: db } = await import("@/src/db");
+
 		const existingRecord = await db
 			.select()
 			.from(table)
@@ -113,6 +114,8 @@ export class SKUGenerator {
 		table: TableWithSKU<T>
 	): Promise<number> {
 		try {
+			const { default: db } = await import("@/src/db");
+
 			const result = await db
 				.select({ count: sql<number>`COUNT(*)` })
 				.from(table)

@@ -114,8 +114,6 @@ export async function GET(request: Request) {
 		const productIdResults = await productIdQuery;
 		const productIds = productIdResults.map((p) => p.id);
 
-		console.log("🔎 Product IDs found:", productIds.length);
-
 		// If no matching products, return empty response
 		if (productIds.length === 0) {
 			return NextResponse.json(

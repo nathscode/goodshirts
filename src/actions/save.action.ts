@@ -80,11 +80,6 @@ export async function removeSavedProductAction(
 	}
 
 	try {
-		// Log session ID and productId for debugging
-		console.log("Current User ID:", session.id);
-		console.log("Removing Product ID:", productId);
-
-		// Check if the product exists in the savedProducts table for this user
 		const savedProduct = await db
 			.select()
 			.from(savedProducts)
@@ -97,7 +92,6 @@ export async function removeSavedProductAction(
 			.execute();
 
 		if (savedProduct.length === 0) {
-			console.log("No matching product found in saved list.");
 			return { status: "error", message: "Product not found in saved list." };
 		}
 		await db

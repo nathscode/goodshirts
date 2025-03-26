@@ -104,14 +104,6 @@ export async function PATCH(req: NextRequest) {
 			);
 		}
 
-		// Extract addressId from the URL
-		// const url = new URL(req.url);
-		// const addressId = url.pathname.split("/").pop();
-		// console.log("===============================");
-		// console.log({ url });
-		// console.log({ addressId });
-		// console.log("===============================");
-
 		// Parse and validate the request body
 		const body: AddressSchemaInfer = await req.json();
 		const payload = AddressSchema.safeParse(body);

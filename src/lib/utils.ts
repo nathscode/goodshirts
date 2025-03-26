@@ -218,12 +218,6 @@ export const compressImage = async (file: File): Promise<File> => {
 	});
 };
 
-export const generateProductSKU = async (name: string, table: any) => {
-	const skuGenerator = await SKUGenerator.getInstance();
-	const sku = await skuGenerator.generateSKU(name, table);
-	return sku;
-};
-
 export function calculateAverageRating(reviews: ReviewType[]): number | null {
 	if (!reviews?.length) {
 		return 0;

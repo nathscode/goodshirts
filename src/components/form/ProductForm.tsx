@@ -197,11 +197,6 @@ const ProductForm = React.memo(({ initialData }: ProductFormProps) => {
 			})
 		);
 
-		// Debugging
-		// for (const [key, value] of formData.entries()) {
-		// 	console.log(key, value);
-		// }
-
 		// Submit formData
 		mutate(formData);
 	};

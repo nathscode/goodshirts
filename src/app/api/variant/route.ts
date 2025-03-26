@@ -7,11 +7,7 @@ import {
 	products,
 } from "@/src/db/schema";
 import { getLogger } from "@/src/lib/backend/logger";
-import {
-	generateProductSKU,
-	handlerNativeResponse,
-	trimAndUppercase,
-} from "@/src/lib/utils";
+import { handlerNativeResponse, trimAndUppercase } from "@/src/lib/utils";
 import {
 	variantSchema,
 	variantSchemaInfer,
@@ -19,6 +15,7 @@ import {
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
+import { generateProductSKU } from "../products/route";
 
 const logger = getLogger();
 
