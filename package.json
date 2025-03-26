@@ -8,7 +8,7 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
-		"start": "next start -p 3003",
+		"start": "next start -p 3000",
 		"lint": "next lint",
 		"db:generate": "npx drizzle-kit generate",
 		"db:migrate": "npx drizzle-kit migrate",
