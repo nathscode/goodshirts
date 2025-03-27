@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import PaymentTypeSection from "@/src/components/PaymentTypeSection";
 import ShippingAddress from "@/src/components/ShippingAddress";
 import ShippingSection from "@/src/components/ShippingSection";
 import ReviewCartCard from "@/src/components/card/ReviewCartCard";
@@ -10,14 +9,23 @@ import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { AddressType } from "@/src/db/schema";
 import useCartStore from "@/src/hooks/use-cart";
 import { formatCurrency, roundNumber } from "@/src/lib/utils";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 type Props = {
 	addresses: AddressType[];
 };
 
 const CheckoutClient = ({ addresses }: Props) => {
-	const { cartItems, total, totalPrice, shippingFee } = useCartStore();
+	const {
+		cartItems,
+		total,
+		totalPrice,
+		shippingFee,
+		paymentType,
+		selectedAddress,
+	} = useCartStore();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -29,11 +37,29 @@ const CheckoutClient = ({ addresses }: Props) => {
 	let subTotal = roundNumber(total);
 	let grandTotal = roundNumber(totalPrice);
 
+	const handlePayNow = () => {
+		if (!shippingFee) {
+			toast.error("Select a Shipping fee");
+			return;
+		}
+		if (!paymentType) {
+			toast.error("Select a payment option");
+			return;
+		}
+		if (!selectedAddress) {
+			toast.error("Select a delivery address ");
+			return;
+		}
+
+		router.push("/checkout/pay");
+	};
+
 	return (
 		<div className="flex flex-col w-full">
 			<div className="flex flex-wrap justify-between w-full mt-4">
 				<div className="w-full md:w-1/2 px-2">
 					<ShippingSection />
+					<PaymentTypeSection />
 					<ShippingAddress addresses={addresses} />
 				</div>
 				<div className="w-full md:w-1/2 px-2">
@@ -65,9 +91,9 @@ const CheckoutClient = ({ addresses }: Props) => {
 									<li className="inline-flex items-center justify-between w-full text-base py-1">
 										<strong className="text-zinc-500">Shipping</strong>
 										<span>
-											{shippingFee > 0
+											{shippingFee
 												? formatCurrency(shippingFee.toString())
-												: "Free"}
+												: "select shipping"}
 										</span>
 									</li>
 									<li className="inline-flex items-center justify-between w-full text-base mt-4">
@@ -77,12 +103,13 @@ const CheckoutClient = ({ addresses }: Props) => {
 										</strong>
 									</li>
 								</ul>
+
 								<div className="flex flex-col mt-5">
 									<Button
-										asChild
 										className="uppercase inline-flex text-sm rounded-none font-semibold px-8"
+										onClick={handlePayNow}
 									>
-										<Link href={"/checkout/pay"}>Pay Now</Link>
+										Pay Now
 									</Button>
 								</div>
 							</div>

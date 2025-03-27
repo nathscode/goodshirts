@@ -3,7 +3,23 @@ import axios from "axios";
 export const ITEM_PER_PAGE = 12;
 
 export const colors = ["black", "gray", "white", "navy blue"];
-export const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+export const sizes = [
+	"XS",
+	"S",
+	"M",
+	"L",
+	"XL",
+	"XXL",
+	"XXXL",
+	"XXXXL",
+	"40",
+	"41",
+	"42",
+	"43",
+	"44",
+	"45",
+	"46",
+];
 export const addressesTypes = ["HOME", "WORK"];
 export const OrderStatusTypes = [
 	"PENDING",

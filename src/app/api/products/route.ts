@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
 				},
 			},
 			orderBy: [sql`${products.createdAt} DESC`],
+			limit: 16,
 		});
 
 		const filteredProducts = productsList.filter(

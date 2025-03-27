@@ -8,7 +8,7 @@ import {
 import { CategoriesWithExtra } from "@/src/db/schema";
 import { Search } from "lucide-react";
 import { useState } from "react";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import CategoryFilterItem from "./CategoryFilterItem";
 
 type Props = {
@@ -42,11 +42,16 @@ const CategoryFilterClient = ({ categories }: Props) => {
 							</div>
 						</div>
 						<ul className="flex flex-col w-full gap-y-2 my-4">
-							<ScrollArea className="min-h-[150px] w-full">
+							<ScrollArea className="h-[200px] w-full">
 								{filteredCategories && filteredCategories.length > 0 ? (
-									filteredCategories.map((category) => (
-										<CategoryFilterItem key={category.id} category={category} />
-									))
+									filteredCategories
+										.sort((a, b) => a.name.localeCompare(b.name))
+										.map((category) => (
+											<CategoryFilterItem
+												key={category.id}
+												category={category}
+											/>
+										))
 								) : (
 									<li>No categories yet</li>
 								)}

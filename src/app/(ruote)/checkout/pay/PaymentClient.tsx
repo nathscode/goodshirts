@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import useCartStore from "@/src/hooks/use-cart";
-import { PaystackButton } from "react-paystack";
-import axios from "axios";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 import DeliveryAddress from "@/src/components/DeliveryAddress";
 import SuccessModal from "@/src/components/modal/SuccessModal";
 import { Separator } from "@/src/components/ui/separator";
-import { Loader2 } from "lucide-react";
+import useCartStore from "@/src/hooks/use-cart";
 import { formatCurrency, roundNumber } from "@/src/lib/utils";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { PaystackButton } from "react-paystack";
+import { toast } from "sonner";
 
 type Props = { email: string };
 
@@ -21,6 +20,7 @@ const PaymentClient = ({ email }: Props) => {
 		total,
 		totalPrice,
 		shippingFee,
+		paymentType,
 		selectedAddress,
 		clearCart,
 	} = useCartStore();
@@ -68,7 +68,7 @@ const PaymentClient = ({ email }: Props) => {
 	};
 
 	const handlePaystackSuccessAction = (reference: any) => {
-		onSubmitFormData(reference);
+		onSubmitFormData(reference.reference);
 	};
 
 	const handlePaystackCloseAction = () => {
@@ -76,14 +76,22 @@ const PaymentClient = ({ email }: Props) => {
 		toast.error("Payment cancelled");
 	};
 
-	async function onSubmitFormData(reference: any) {
+	async function onSubmitFormData(reference: string) {
 		if (!cartItems.length) {
 			toast.error("Cart is empty, cannot create order.");
 			return;
 		}
 
+		if (!shippingFee) {
+			toast.error("Please select shipping Option.");
+			return;
+		}
 		if (!selectedAddress) {
 			toast.error("Please select a delivery address.");
+			return;
+		}
+		if (!paymentType) {
+			toast.error("Please select a payment option");
 			return;
 		}
 
@@ -93,9 +101,19 @@ const PaymentClient = ({ email }: Props) => {
 		formData.append("shippingFee", shippingFee.toString());
 		formData.append("addressId", selectedAddress.id.toString());
 		formData.append("cartItems", JSON.stringify(cartItems));
-		formData.append("reference", String(reference.reference));
+		formData.append("reference", reference);
+		formData.append("paymentType", paymentType);
+
 		mutate(formData);
 	}
+
+	// Generate a random reference for "DELIVERY" payments
+	const handleDeliveryOrder = () => {
+		const randomReference = `DELI-${Date.now()}-${Math.floor(
+			Math.random() * 10000
+		)}`;
+		onSubmitFormData(randomReference);
+	};
 
 	const metadata = {
 		custom_fields: cartItems.map((cartItem) => ({
@@ -121,6 +139,9 @@ const PaymentClient = ({ email }: Props) => {
 		onClose: handlePaystackCloseAction,
 	};
 
+	const paymentText =
+		paymentType === "DELIVERY" ? "Payment on Delivery" : "Online Payment";
+
 	return (
 		<div className="flex flex-col justify-start w-full h-full p-4 rounded-sm border bg-slate-50">
 			<div className="flex flex-col justify-center items-center text-center py-10">
@@ -142,6 +163,10 @@ const PaymentClient = ({ email }: Props) => {
 				</p>
 			</div>
 			<Separator className="my-4" />
+			<div className="flex flex-col mb-4">
+				<h2 className="text-sm capitalize font-semibold">Payment Option</h2>
+				<p className="text-sm text-gray-500">{paymentText}</p>
+			</div>
 			<DeliveryAddress address={selectedAddress!} />
 			<Separator className="my-4" />
 			<ul className="flex flex-col w-full my-2">
@@ -162,17 +187,20 @@ const PaymentClient = ({ email }: Props) => {
 					</strong>
 				</li>
 			</ul>
-			{!isPending ? (
+			{paymentType === "ONLINE" ? (
 				<PaystackButton
 					disabled={isPending}
-					className="disabled:bg-gray-600 uppercase inline-flex text-center items-center justify-center text-sm rounded-none font-semibold py-2 px-8 mt-4 bg-black text-white"
+					className="disabled:bg-gray-600 uppercase inline-flex text-center items-center justify-center text-sm rounded-none font-semibold py-2 px-8 mt-4 bg-black text-white hover:bg-black/80"
 					{...componentProps}
 				/>
 			) : (
-				<div className="uppercase inline-flex text-center items-center justify-center text-sm rounded-none font-semibold py-2 px-8 mt-4 bg-gray-700 text-white">
-					<span>Placing Order...</span>
-					<Loader2 size={16} className="animate-spin" />
-				</div>
+				<button
+					onClick={handleDeliveryOrder}
+					disabled={isPending}
+					className="disabled:bg-gray-600 uppercase inline-flex text-center items-center justify-center text-sm rounded-none font-semibold py-2 px-8 mt-4 bg-black text-white hover:bg-black/80"
+				>
+					{isPending ? "Processing..." : "Place Order"}
+				</button>
 			)}
 			{showModal && <SuccessModal onClose={handleCloseModal} />}
 		</div>

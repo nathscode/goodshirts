@@ -1,61 +1,61 @@
-import React, { useState, useEffect } from "react";
 import { RadioGroup } from "@headlessui/react";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, CreditCard, LucideIcon, Truck, Wallet } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useIsClient } from "usehooks-ts";
 import useCartStore from "../hooks/use-cart";
-import { formatCurrency } from "../lib/utils";
 
 type Props = {};
 
-type ShippingOptionsTypes = {
+type PaymentTypeOptionsTypes = {
 	name: string;
-	amount: number;
-	description: string;
+	type: "ONLINE" | "DELIVERY";
+	icon: LucideIcon;
 };
 
-const plans: ShippingOptionsTypes[] = [
+const plans: PaymentTypeOptionsTypes[] = [
 	{
-		name: "Lagos",
-		amount: 3500,
-		description: "Delivery within Lagos, to your selected address",
+		name: "On Delivery",
+		type: "DELIVERY",
+		icon: Truck,
 	},
 	{
-		name: "Outside Lagos",
-		amount: 6500,
-		description: "Outside Lagos, to your default address",
+		name: "Online Payment",
+		type: "ONLINE",
+		icon: CreditCard,
 	},
 ];
 
-const ShippingSection = (props: Props) => {
-	const [selectedOption, setSelectedOption] = useState<ShippingOptionsTypes>();
-	const { setShippingFee } = useCartStore();
+const PaymentTypeSection = (props: Props) => {
+	const [selectedOption, setSelectedOption] =
+		useState<PaymentTypeOptionsTypes>();
+	const { setPaymentType } = useCartStore();
 
 	useEffect(() => {
-		setShippingFee(selectedOption?.amount!);
-	}, [selectedOption, setShippingFee]);
+		setPaymentType(selectedOption?.type!);
+	}, [selectedOption, setPaymentType]);
 
 	const isClient = useIsClient();
 
 	if (!isClient) return null; // Return null instead of undefined
 
-	const handleOptionChange = (option: ShippingOptionsTypes) => {
+	const handleOptionChange = (option: PaymentTypeOptionsTypes) => {
 		setSelectedOption(option);
 	};
 
 	return (
-		<div className="flex flex-col w-full my-4">
+		<div className="flex flex-col w-full mt-8 mb-4">
 			<h2 className="text-base uppercase font-bold mb-4">
-				Select Shipping Information
+				Select Payment Option
 			</h2>
 			<div className="flex flex-col w-full justify-start items-start">
 				<RadioGroup value={selectedOption} onChange={handleOptionChange}>
 					<RadioGroup.Label className="sr-only">
 						Shipping Options
 					</RadioGroup.Label>
-					<div className="flex flex-col w-full gap-2">
+					<div className="flex flex-wrap sm:flex-nowrap justify-start w-full gap-2">
 						{plans.map((plan) => (
 							<RadioGroup.Option
-								key={plan.name}
+								key={plan.type}
 								value={plan}
 								className={({ active, checked }) =>
 									`${
@@ -71,16 +71,15 @@ const ShippingSection = (props: Props) => {
 											<div className="flex items-center">
 												<div className="text-sm">
 													<RadioGroup.Label as="p" className={`font-medium`}>
-														{plan.name}
+														<plan.icon className="size-5" />
 													</RadioGroup.Label>
 													<RadioGroup.Description
 														as="span"
 														className={`inline`}
 													>
-														<h4 className="font-semibold text-base my-1">
-															{formatCurrency(plan.amount)}
+														<h4 className="font-semibold whitespace-nowrap text-base my-1">
+															{plan.name}
 														</h4>{" "}
-														<p>{plan.description}</p>
 													</RadioGroup.Description>
 												</div>
 											</div>
@@ -101,4 +100,4 @@ const ShippingSection = (props: Props) => {
 	);
 };
 
-export default ShippingSection;
+export default PaymentTypeSection;

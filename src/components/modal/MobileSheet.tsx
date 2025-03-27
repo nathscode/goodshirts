@@ -106,14 +106,14 @@ export function MobileSheet({ open, onOpenChange }: Props) {
 					<div className="flex justify-between items-center w-full px-4">
 						<h4 className="uppercase text-sm font-semibold">Our categories</h4>
 						<Link
-							href="/categories"
+							href="/products"
 							className="text-xs font-medium hover:underline"
 						>
 							See All
 						</Link>
 					</div>
 					<ul className="size-full flex flex-col text-[13px]">
-						<ScrollArea className="max-h-[400px] w-full">
+						<ScrollArea className="h-[300px] w-full">
 							{isPending ? (
 								// Loading skeleton wrapped in a flex container
 								<div className="flex flex-col space-y-4">
@@ -126,26 +126,28 @@ export function MobileSheet({ open, onOpenChange }: Props) {
 							) : error ? (
 								<li className="text-red-500 px-4">Failed to load categories</li>
 							) : data?.length > 0 ? (
-								data.map((category) => (
-									<li key={category.id} className="w-full">
-										<Link
-											href={`/products?category=${category.name}`}
-											className={cn(
-												"flex space-x-4 items-center py-3 px-4 font-medium w-full text-gray-700 transition-colors duration-200 hover:bg-slate-200",
-												pathname === `/product?category=${category.name}` &&
-													"bg-slate-300"
-											)}
-											onClick={() =>
-												handleLinkClick(`/products?category=${category.name}`)
-											}
-										>
-											<ArrowBigRightDash className="size-5" />
-											<span className="font-medium capitalize">
-												{category.name}
-											</span>
-										</Link>
-									</li>
-								))
+								data
+									.sort((a, b) => a.name.localeCompare(b.name))
+									.map((category) => (
+										<li key={category.id} className="w-full">
+											<Link
+												href={`/products?category=${category.name}`}
+												className={cn(
+													"flex space-x-4 items-center py-3 px-4 font-medium w-full text-gray-700 transition-colors duration-200 hover:bg-slate-200",
+													pathname === `/product?category=${category.name}` &&
+														"bg-slate-300"
+												)}
+												onClick={() =>
+													handleLinkClick(`/products?category=${category.name}`)
+												}
+											>
+												<ArrowBigRightDash className="size-5" />
+												<span className="font-medium capitalize">
+													{category.name}
+												</span>
+											</Link>
+										</li>
+									))
 							) : (
 								<li className="px-4">No categories available</li>
 							)}

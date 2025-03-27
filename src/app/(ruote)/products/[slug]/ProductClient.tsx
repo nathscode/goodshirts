@@ -205,7 +205,8 @@ const ProductClient = ({ product }: Props) => {
 										<ChevronDownIcon className="size-5 text-black group-data-[hover]:text-black group-data-[open]:rotate-180" />
 									</DisclosureButton>
 									<DisclosurePanel className="mt-2 text-sm/5 text-black/50">
-										Processes in 24-72 Hours, shipping times may vary
+										Processes in 24-72 Hours, shipping times may vary, Within
+										Lagos: &#8358;3,500 Outside Lagos: &#8358;6,500.
 									</DisclosurePanel>
 								</Disclosure>
 							</div>

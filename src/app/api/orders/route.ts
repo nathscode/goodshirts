@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { orders, orderItems, addressTable, payments } from "@/src/db/schema";
+import {
+	orders,
+	orderItems,
+	addressTable,
+	payments,
+	paymentMethodEnum,
+} from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import db from "@/src/db";
 import getCurrentUser from "@/src/actions/getCurrentUser";
@@ -56,6 +62,7 @@ export async function POST(req: NextRequest) {
 		const formData = await req.formData();
 		const addressId = formData.get("addressId") as string;
 		const reference = formData.get("reference") as string;
+		const paymentType = formData.get("paymentType") as string;
 		const shippingFee = Number(formData.get("shippingFee"));
 		const totalAmount = Number(formData.get("total"));
 		const payable = Number(formData.get("payable"));
@@ -86,6 +93,8 @@ export async function POST(req: NextRequest) {
 
 		const orderNumber = generateCryptoString(10);
 		const finalTotal = totalAmount + shippingFee;
+		const typedPayment =
+			paymentType as (typeof paymentMethodEnum.enumValues)[number];
 
 		// Start a database transaction
 		const result = await db.transaction(async (tx) => {
@@ -97,6 +106,7 @@ export async function POST(req: NextRequest) {
 					grandTotal: finalTotal.toFixed(2),
 					total: totalAmount.toFixed(2),
 					shippingFee: shippingFee.toFixed(2),
+					paymentType: typedPayment,
 					shippingAddress: existingAddress.id,
 				})
 				.returning();
@@ -118,8 +128,8 @@ export async function POST(req: NextRequest) {
 				orderId: newOrder.id,
 				refId: reference,
 				payable: payable.toFixed(2),
-				paymentMethod: "ONLINE",
-				processor: "PAYSTACK",
+				paymentMethod: typedPayment,
+				processor: typedPayment === "DELIVERY" ? "DELIVERY" : "PAYSTACK",
 				status: "SUCCESS",
 				isSuccessful: true,
 			});

@@ -50,6 +50,7 @@ export const processorTypeEnum = pgEnum("processor_type_enum", [
 	"PAYSTACK",
 	"FLUTTERWAVE",
 	"BANK_TRANSFER",
+	"DELIVERY",
 ]);
 
 export const paymentMethodEnum = pgEnum("payment_method_enum", [
@@ -59,6 +60,7 @@ export const paymentMethodEnum = pgEnum("payment_method_enum", [
 	"BANK_TRANSFER",
 	"WALLET",
 	"ONLINE",
+	"DELIVERY",
 ]);
 
 export interface Size {
@@ -297,6 +299,7 @@ export const orders = pgTable("orders", {
 	total: decimal("total", { precision: 10, scale: 2 }).notNull(),
 	grandTotal: decimal("grand_total", { precision: 10, scale: 2 }).notNull(),
 	shippingFee: decimal("shipping_fee", { precision: 10, scale: 2 }).notNull(),
+	paymentType: varchar("payment_type", { length: 25 }),
 	shippingAddress: cuid2("address_id").references(() => addressTable.id, {
 		onDelete: "set null",
 	}),

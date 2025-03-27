@@ -40,6 +40,11 @@ export const OrderColumns: ColumnDef<OrderWithExtra>[] = [
 		cell: ({ row }) => <span>{`${row.original.user.phoneNumber} `}</span>,
 	},
 	{
+		accessorKey: "PaymentType",
+		header: "Payment Type",
+		cell: ({ row }) => <span>{`${row.original.paymentType} `}</span>,
+	},
+	{
 		accessorKey: "total",
 		header: "Total",
 		cell: ({ row }) => (

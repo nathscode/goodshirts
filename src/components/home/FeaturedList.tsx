@@ -41,21 +41,25 @@ const FeaturedList = () => {
 			);
 		}
 		return (
-			<div className="flex flex-col w-full">
-				<div className="flex flex-col justify-center items-center text-center w-full mb-10">
-					<h1 className="text-xl sm:text-2xl font-semibold uppercase font-dela">
-						Featured Products
-					</h1>
-				</div>
+			<>
+				{data && data.length > 0 ? (
+					<div className="flex flex-col w-full">
+						<div className="flex flex-col justify-center items-center text-center w-full mb-10">
+							<h1 className="text-xl sm:text-2xl font-semibold uppercase font-dela">
+								Featured Products
+							</h1>
+						</div>
 
-				<div className="flex flex-wrap justify-center md:justify-start w-full gap-5">
-					<Carousel title="Discounted Sales" slideLength={data.length}>
-						{data.map((item: ProductWithExtra) => (
-							<FeaturedProductCard key={item.id} product={item} />
-						))}
-					</Carousel>
-				</div>
-			</div>
+						<div className="flex flex-wrap justify-center md:justify-start w-full gap-5">
+							<Carousel title="Discounted Sales" slideLength={data.length}>
+								{data.map((item: ProductWithExtra) => (
+									<FeaturedProductCard key={item.id} product={item} />
+								))}
+							</Carousel>
+						</div>
+					</div>
+				) : null}
+			</>
 		);
 	}
 };

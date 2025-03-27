@@ -31,7 +31,8 @@ interface Store {
 	totalQuantity: number;
 	totalPrice: number;
 	total: number;
-	shippingFee: number;
+	paymentType: string;
+	shippingFee: number | 0;
 	selectedAddress: AddressType | null;
 	getItems: () => CartItem[];
 	addItem: (
@@ -49,6 +50,7 @@ interface Store {
 	) => void;
 	clearCart: () => void;
 	setShippingFee: (fee: number) => void;
+	setPaymentType: (type: string) => void;
 	setSelectedAddress: (selectedAddress: AddressType | null) => void;
 }
 
@@ -74,6 +76,7 @@ const useCartStore = create<Store>()(
 			totalPrice: 0,
 			total: 0,
 			shippingFee: 0,
+			paymentType: "",
 			selectedAddress: null,
 			getItems: () => get().cartItems,
 			addItem: (item, variant, size, quantity = 1) => {
@@ -151,6 +154,8 @@ const useCartStore = create<Store>()(
 				}),
 			setSelectedAddress: (address: AddressType | null) =>
 				set((state) => ({ ...state, selectedAddress: address })),
+			setPaymentType: (type) =>
+				set((state) => ({ ...state, paymentType: type })),
 			setShippingFee: (fee) => {
 				const { total, totalPrice, totalQuantity } = calculateTotal(
 					get().cartItems,
