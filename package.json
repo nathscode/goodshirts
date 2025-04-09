@@ -21,6 +21,7 @@
 	"dependencies": {
 		"@auth/drizzle-adapter": "^1.7.4",
 		"@aws-sdk/client-s3": "^3.749.0",
+		"@getbrevo/brevo": "^2.2.0",
 		"@headlessui/react": "^2.2.0",
 		"@hookform/resolvers": "^3.10.0",
 		"@radix-ui/react-accordion": "^1.2.3",
@@ -46,6 +47,7 @@
 		"@tanstack/react-query": "^5.64.1",
 		"@tanstack/react-table": "^8.20.6",
 		"@types/bcryptjs": "^2.4.6",
+		"@types/luxon": "^3.6.2",
 		"@types/nodemailer": "^6.4.17",
 		"@types/otp-generator": "^4.0.2",
 		"@types/react-modal-image": "^2.6.4",
@@ -63,6 +65,7 @@
 		"embla-carousel-react": "^8.5.2",
 		"framer-motion": "^11.18.0",
 		"lucide-react": "^0.474.0",
+		"luxon": "^3.6.1",
 		"moment": "^2.30.1",
 		"next": "^15.1.6",
 		"next-auth": "^5.0.0-beta.25",

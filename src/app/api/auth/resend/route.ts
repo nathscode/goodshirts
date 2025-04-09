@@ -12,6 +12,7 @@ import { sendEmail } from "@/src/config/mail";
 import Verification from "@/src/emails/verify-email";
 import { generateUniqueVerificationCode } from "../register/route";
 import { getLogger } from "nodemailer/lib/shared";
+import { site } from "@/src/config/site";
 
 const logger = getLogger();
 
@@ -51,7 +52,24 @@ export async function POST(req: Request) {
 			const htmlEmail = await render(
 				Verification({ verificationCode: newVerificationCode })
 			);
-			await sendEmail(user.email!, "Email Verification", htmlEmail);
+			const emailPayload = {
+				from: {
+					email: `goodshirtsafrica@gmail.com`,
+					name: `${site.name} <no-reply@${site.domain}>`,
+				},
+				subject: `Email Verification - [${site.name}] `,
+				html: htmlEmail, // ✅ Now a string
+				params: {
+					orderId: user.id,
+					customerName: user.firstName,
+				},
+			};
+
+			await sendEmail({
+				...emailPayload,
+				to: user.email!,
+				subject: `Email Verification`,
+			});
 		} catch (error: any) {
 			logger.info("USER VERIFICATION EMAIL ERROR", error);
 		}

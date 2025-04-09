@@ -53,7 +53,7 @@ const HomeProductContent = () => {
 
 	return (
 		<>
-			<div className="flex flex-wrap justify-center md:justify-start w-full gap-5 ">
+			<div className="flex flex-wrap justify-center  w-full gap-5">
 				{products.map((item: ProductWithExtra) => (
 					<ProductCard
 						key={item.id}

@@ -14,7 +14,7 @@ const CartSection = ({ carts, onOpenChange }: Props) => {
 	const { clearCart, shippingFee, total, totalPrice } = useCartStore();
 
 	let subTotal = roundNumber(total);
-	let grandTotal = roundNumber(totalPrice);
+	let grandTotal = roundNumber(total + 0);
 
 	const handleProceedToCheckout = () => {
 		onOpenChange(false);

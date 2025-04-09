@@ -161,6 +161,16 @@ export const authenticators = pgTable(
 		}),
 	})
 );
+
+export const passwordReset = pgTable("password_reset", {
+	id: cuid2("id").defaultRandom().primaryKey(),
+	email: varchar("email", { length: 255 }).notNull(),
+	code: varchar("code", { length: 255 }).notNull(),
+	expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull(),
+});
 // Categories table
 export const categories = pgTable("categories", {
 	id: cuid2("id").defaultRandom().primaryKey(),

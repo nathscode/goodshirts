@@ -134,6 +134,7 @@ export async function GET(request: Request) {
 				media: medias,
 			})
 			.from(products)
+			.orderBy(sql`${products.createdAt} DESC`)
 			.leftJoin(productVariants, eq(products.id, productVariants.productId))
 			.leftJoin(
 				productVariantPrices,

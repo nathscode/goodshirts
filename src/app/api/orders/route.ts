@@ -14,6 +14,7 @@ import { generateCryptoString, handlerNativeResponse } from "@/src/lib/utils";
 import { getLogger } from "@/src/lib/backend/logger";
 import OrderCreated from "@/src/emails/order-created";
 import { sendEmail } from "@/src/config/mail";
+import { site } from "@/src/config/site";
 
 const logger = getLogger();
 
@@ -46,12 +47,30 @@ async function sendOrderConfirmationEmails(email: string, orderDetails: any) {
 	);
 
 	try {
-		await sendEmail(email, "An order was created.", emailHtml);
-		await sendEmail(
-			"goodshirtsafrica@gmail.com",
-			"An order was created.",
-			emailHtml
-		);
+		const emailPayload = {
+			from: {
+				email: `goodshirtsafrica@gmail.com`,
+				name: `${site.name} <no-reply@${site.domain}>`,
+			},
+			html: emailHtml,
+			params: {
+				orderId: orderDetails.id,
+				customerName: "Good Shirts Africa Customer",
+			},
+		};
+
+		await Promise.all([
+			sendEmail({
+				...emailPayload,
+				to: email!,
+				subject: `Your Order Created - #${orderDetails.orderNumber}`,
+			}),
+			sendEmail({
+				...emailPayload,
+				to: "goodshirtsafrica@gmail.com",
+				subject: `New Order Created - #${orderDetails.orderNumber}`,
+			}),
+		]);
 	} catch (error) {
 		logger.error("Failed to send order confirmation email", error);
 	}

@@ -38,10 +38,10 @@ const CheckoutClient = ({ addresses }: Props) => {
 	let grandTotal = roundNumber(totalPrice);
 
 	const handlePayNow = () => {
-		if (!shippingFee) {
-			toast.error("Select a Shipping fee");
-			return;
-		}
+		// if (!shippingFee) {
+		// 	toast.error("Select a Shipping fee");
+		// 	return;
+		// }
 		if (!paymentType) {
 			toast.error("Select a payment option");
 			return;
@@ -58,7 +58,7 @@ const CheckoutClient = ({ addresses }: Props) => {
 		<div className="flex flex-col w-full">
 			<div className="flex flex-wrap justify-between w-full mt-4">
 				<div className="w-full md:w-1/2 px-2">
-					<ShippingSection />
+					{/* <ShippingSection /> */}
 					<PaymentTypeSection />
 					<ShippingAddress addresses={addresses} />
 				</div>
@@ -93,13 +93,13 @@ const CheckoutClient = ({ addresses }: Props) => {
 										<span>
 											{shippingFee
 												? formatCurrency(shippingFee.toString())
-												: "select shipping"}
+												: "Free Shipping"}
 										</span>
 									</li>
 									<li className="inline-flex items-center justify-between w-full text-base mt-4">
 										<strong className="">Grand Total</strong>
 										<strong className="font-bold">
-											{formatCurrency(grandTotal.toString())}
+											{formatCurrency(total.toString())}
 										</strong>
 									</li>
 								</ul>

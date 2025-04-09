@@ -11,6 +11,7 @@ import { eq } from "drizzle-orm"; // Import query helpers
 import db from "@/src/db";
 import Verification from "@/src/emails/verify-email";
 import { sendEmail } from "@/src/config/mail";
+import { site } from "@/src/config/site";
 
 const logger = getLogger();
 
@@ -121,7 +122,24 @@ export async function POST(req: NextRequest) {
 
 		try {
 			const htmlEmail = await render(Verification({ verificationCode }));
-			await sendEmail(newUser.email!, "Email Verification", htmlEmail);
+			const emailPayload = {
+				from: {
+					email: `goodshirtsafrica@gmail.com`,
+					name: `${site.name} <no-reply@${site.domain}>`,
+				},
+				subject: `Email Verification - [${site.name}] `,
+				html: htmlEmail,
+				params: {
+					orderId: newUser.id,
+					customerName: newUser.firstName,
+				},
+			};
+
+			await sendEmail({
+				...emailPayload,
+				to: newUser.email!,
+				subject: `Email Verification`,
+			});
 		} catch (error: any) {
 			logger.info("USER VERIFICATION EMAIL ERROR", error);
 		}

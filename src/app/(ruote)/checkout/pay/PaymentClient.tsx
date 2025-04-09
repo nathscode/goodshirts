@@ -18,9 +18,9 @@ const PaymentClient = ({ email }: Props) => {
 	const {
 		cartItems,
 		total,
-		totalPrice,
 		shippingFee,
 		paymentType,
+		totalPrice,
 		selectedAddress,
 		clearCart,
 	} = useCartStore();
@@ -82,10 +82,10 @@ const PaymentClient = ({ email }: Props) => {
 			return;
 		}
 
-		if (!shippingFee) {
-			toast.error("Please select shipping Option.");
-			return;
-		}
+		// if (!shippingFee) {
+		// 	toast.error("Please select shipping Option.");
+		// 	return;
+		// }
 		if (!selectedAddress) {
 			toast.error("Please select a delivery address.");
 			return;
@@ -98,11 +98,11 @@ const PaymentClient = ({ email }: Props) => {
 		const formData = new FormData();
 		formData.append("total", total.toString());
 		formData.append("payable", totalPrice.toString());
-		formData.append("shippingFee", shippingFee.toString());
+		formData.append("shippingFee", "0");
 		formData.append("addressId", selectedAddress.id.toString());
 		formData.append("cartItems", JSON.stringify(cartItems));
 		formData.append("reference", reference);
-		formData.append("paymentType", paymentType);
+		formData.append("paymentType", "ONLINE");
 
 		mutate(formData);
 	}
@@ -127,7 +127,7 @@ const PaymentClient = ({ email }: Props) => {
 
 	const config = {
 		email: email ?? "",
-		amount: grandTotal * 100,
+		amount: subTotal * 100,
 		publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
 		metadata,
 	};
@@ -146,9 +146,7 @@ const PaymentClient = ({ email }: Props) => {
 		<div className="flex flex-col justify-start w-full h-full p-4 rounded-sm border bg-slate-50">
 			<div className="flex flex-col justify-center items-center text-center py-10">
 				<h2 className="text-base font-medium text-gray-500">Total Amount</h2>
-				<h1 className="text-2xl font-bold my-1">
-					{formatCurrency(grandTotal)}
-				</h1>
+				<h1 className="text-2xl font-bold my-1">{formatCurrency(subTotal)}</h1>
 				<p className="inline-flex items-center space-x-1">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -183,7 +181,7 @@ const PaymentClient = ({ email }: Props) => {
 				<li className="inline-flex items-center justify-between w-full text-sm mt-4">
 					<strong>Total</strong>
 					<strong className="font-bold">
-						{formatCurrency(grandTotal.toString())}
+						{formatCurrency(subTotal.toString())}
 					</strong>
 				</li>
 			</ul>

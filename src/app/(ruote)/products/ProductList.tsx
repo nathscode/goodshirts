@@ -46,6 +46,7 @@ const ProductList = () => {
 	useEffect(() => {
 		const query = searchParams.toString();
 		setQueryString(query);
+		setPage(1);
 	}, [searchParams]);
 
 	// React Query for fetching products
@@ -118,7 +119,7 @@ const ProductList = () => {
 				<div className="flex items-center justify-center mt-10 mb-5">
 					<Pagination
 						currentPage={page}
-						totalItems={pagination.totalPages}
+						totalItems={pagination.totalCount} // ✅ Correct
 						onPageChange={(page) => setPage(page)}
 						isPreviousData={isPlaceholderData}
 						itemPerPage={ITEM_PER_PAGE}
