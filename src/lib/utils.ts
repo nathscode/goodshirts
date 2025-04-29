@@ -252,7 +252,7 @@ export function calculateDiscountPercentage(
 ): number {
 	// Ensure the price is greater than 0 to avoid division by zero
 	if (price <= 0) {
-		throw new Error("Price must be greater than 0.");
+		price = 0;
 	}
 
 	// Ensure the discount price is less than or equal to the price

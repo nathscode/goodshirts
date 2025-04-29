@@ -4,7 +4,7 @@ import PaymentClient from "./PaymentClient";
 import { redirect } from "next/navigation";
 const PaymentPage = async () => {
 	const session = await getCurrentUser();
-	if (!session) return redirect("/login");
+	if (!session) return redirect("/checkout");
 	return (
 		<div className="min-h-screen py-10">
 			<div className="flex justify-center items-center flex-col w-full">

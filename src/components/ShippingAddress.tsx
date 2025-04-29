@@ -13,7 +13,11 @@ const ShippingAddress = ({ addresses }: Props) => {
 				Select Shipping Address
 			</h2>
 			<div className="flex flex-col w-full">
-				<AddressSelect addresses={addresses} />
+				{addresses.length === 0 ? (
+					<div> You don't have an address</div>
+				) : (
+					<AddressSelect addresses={addresses} />
+				)}
 			</div>
 		</div>
 	);

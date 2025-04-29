@@ -1,15 +1,11 @@
-import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
-import React from "react";
-import CheckoutClient from "./CheckoutClient";
 import { getAllUserAddressById } from "@/src/actions/address.action";
-import getCurrentUser from "@/src/actions/getCurrentUser";
-import { redirect } from "next/navigation";
+import MaxWidthWrapper from "@/src/components/MaxWidthWrapper";
 import BackButton from "@/src/components/common/BackButton";
+import CheckoutClient from "./CheckoutClient";
 
 type Props = {};
 
 const CheckoutPage = async (props: Props) => {
-	const session = await getCurrentUser();
 	const addresses = await getAllUserAddressById();
 	return (
 		<MaxWidthWrapper>

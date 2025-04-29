@@ -14,7 +14,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 
 type Props = {
-	addresses: AddressType[];
+	addresses: AddressType[] | [];
 };
 
 const CheckoutClient = ({ addresses }: Props) => {
