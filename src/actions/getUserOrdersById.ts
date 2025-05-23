@@ -62,6 +62,7 @@ export async function getDashboardOrdersById(
 			where: eq(orders.id, id),
 			with: {
 				user: true,
+				guestUser: true,
 				address: true,
 				items: {
 					with: {

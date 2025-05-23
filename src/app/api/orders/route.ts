@@ -5,12 +5,17 @@ import {
 	addressTable,
 	payments,
 	paymentMethodEnum,
+	guestUsers,
 } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import db from "@/src/db";
 import getCurrentUser from "@/src/actions/getCurrentUser";
 import { render } from "@react-email/render";
-import { generateCryptoString, handlerNativeResponse } from "@/src/lib/utils";
+import {
+	generateCryptoString,
+	handlerNativeResponse,
+	normalizeEmail,
+} from "@/src/lib/utils";
 import { getLogger } from "@/src/lib/backend/logger";
 import OrderCreated from "@/src/emails/order-created";
 import { sendEmail } from "@/src/config/mail";
@@ -27,7 +32,7 @@ function validateInput(formData: FormData) {
 	const payable = Number(formData.get("payable"));
 	const cartItems = JSON.parse(formData.get("cartItems") as string);
 
-	if (!addressId || !Array.isArray(cartItems) || cartItems.length === 0) {
+	if (!Array.isArray(cartItems) || cartItems.length === 0) {
 		throw new Error("Invalid input data");
 	}
 
@@ -79,34 +84,26 @@ async function sendOrderConfirmationEmails(email: string, orderDetails: any) {
 export async function POST(req: NextRequest) {
 	try {
 		const formData = await req.formData();
-		const addressId = formData.get("addressId") as string;
-		const reference = formData.get("reference") as string;
+		const {
+			addressId,
+			reference,
+			shippingFee,
+			totalAmount,
+			payable,
+			cartItems,
+		} = validateInput(formData);
+
 		const paymentType = formData.get("paymentType") as string;
-		const shippingFee = Number(formData.get("shippingFee"));
-		const totalAmount = Number(formData.get("total"));
-		const payable = Number(formData.get("payable"));
-		const cartItems = JSON.parse(formData.get("cartItems") as string);
+		const guestUserData = formData.get("guestUser")
+			? JSON.parse(formData.get("guestUser") as string)
+			: null;
 
-		if (!addressId || !Array.isArray(cartItems) || cartItems.length === 0) {
-			throw new Error("Invalid input data");
-		}
-
+		// For guest orders, we don't require a session
 		const session = await getCurrentUser();
-		if (!session) {
+		if (!session && !guestUserData) {
 			return handlerNativeResponse(
 				{ status: 401, errors: { message: "Unauthorized user" } },
 				401
-			);
-		}
-
-		const existingAddress = await db.query.addressTable.findFirst({
-			where: eq(addressTable.id, addressId),
-		});
-
-		if (!existingAddress) {
-			return handlerNativeResponse(
-				{ status: 403, errors: { message: "No address found" } },
-				403
 			);
 		}
 
@@ -115,21 +112,87 @@ export async function POST(req: NextRequest) {
 		const typedPayment =
 			paymentType as (typeof paymentMethodEnum.enumValues)[number];
 
-		// Start a database transaction
+		// Start transaction
 		const result = await db.transaction(async (tx) => {
+			let guestUserId: string | undefined;
+			let shippingAddressDetails: any;
+
+			// Handle guest user logic
+			if (guestUserData) {
+				let formattedEmail = normalizeEmail(guestUserData.email);
+				let existingGuestUser = null;
+				if (guestUserData.email) {
+					existingGuestUser = await tx.query.guestUsers.findFirst({
+						where: and(
+							eq(guestUsers.email, formattedEmail),
+							eq(guestUsers.phoneNumber, guestUserData.phoneNumber)
+						),
+					});
+				}
+
+				// If guest user exists, use their ID
+				if (existingGuestUser) {
+					guestUserId = existingGuestUser.id;
+					// Update guest user info if needed
+					await tx
+						.update(guestUsers)
+						.set({
+							firstName: guestUserData.firstName,
+							lastName: guestUserData.lastName,
+							state: guestUserData.state,
+							lga: guestUserData.lga,
+							city: guestUserData.city,
+							streetAddress: guestUserData.streetAddress,
+							whatsappNumber:
+								guestUserData.whatsappNumber ||
+								existingGuestUser.whatsappNumber,
+						})
+						.where(eq(guestUsers.id, guestUserId));
+				} else {
+					const [newGuestUser] = await tx
+						.insert(guestUsers)
+						.values({
+							email: formattedEmail,
+							phoneNumber: guestUserData.phoneNumber,
+							whatsappNumber: guestUserData.whatsappNumber,
+							firstName: guestUserData.firstName,
+							lastName: guestUserData.lastName,
+							state: guestUserData.state,
+							lga: guestUserData.lga,
+							city: guestUserData.city,
+							streetAddress: guestUserData.streetAddress,
+						})
+						.returning();
+					guestUserId = newGuestUser.id;
+				}
+
+				shippingAddressDetails = {
+					...guestUserData,
+					id: guestUserId,
+				};
+			} else {
+				const existingAddress = await tx.query.addressTable.findFirst({
+					where: eq(addressTable.id, addressId),
+				});
+				if (!existingAddress) {
+					throw new Error("No address found");
+				}
+				shippingAddressDetails = existingAddress;
+			}
 			const [newOrder] = await tx
 				.insert(orders)
 				.values({
-					userId: session.id,
+					userId: session?.id,
+					guestUserId,
 					orderNumber: orderNumber.toUpperCase(),
 					grandTotal: finalTotal.toFixed(2),
 					total: totalAmount.toFixed(2),
 					shippingFee: shippingFee.toFixed(2),
 					paymentType: typedPayment,
-					shippingAddress: existingAddress.id,
+					shippingAddress: session?.id ? addressId : null,
+					guestShippingAddress: guestUserId ? shippingAddressDetails : null,
 				})
 				.returning();
-
 			const orderItemsData = cartItems.map((item: any) => ({
 				orderId: newOrder.id,
 				productId: item.item.id,
@@ -141,9 +204,11 @@ export async function POST(req: NextRequest) {
 			}));
 
 			await tx.insert(orderItems).values(orderItemsData);
+
+			// Create payment record
 			await tx.insert(payments).values({
-				//@ts-ignore
-				userId: session.id,
+				userId: session?.id,
+				guestUserId,
 				orderId: newOrder.id,
 				refId: reference,
 				payable: payable.toFixed(2),
@@ -153,17 +218,24 @@ export async function POST(req: NextRequest) {
 				isSuccessful: true,
 			});
 
-			return { newOrder, existingAddress, cartItems, payable };
+			return {
+				newOrder,
+				shippingAddress: shippingAddressDetails,
+				cartItems,
+				payable,
+				email: session?.email || normalizeEmail(guestUserData?.email),
+			};
 		});
 
-		// Send order confirmation emails
-		await sendOrderConfirmationEmails(session.email!, {
-			id: result.newOrder.id,
-			payable: result.payable,
-			orderNumber: result.newOrder.orderNumber,
-			address: result.existingAddress,
-			cartItems: result.cartItems,
-		});
+		if (result.email) {
+			await sendOrderConfirmationEmails(result.email, {
+				id: result.newOrder.id,
+				payable: result.payable,
+				orderNumber: result.newOrder.orderNumber,
+				address: result.shippingAddress,
+				cartItems: result.cartItems,
+			});
+		}
 
 		return NextResponse.json({ success: true, order: result.newOrder });
 	} catch (error: any) {

@@ -2,22 +2,23 @@
 
 import PaymentTypeSection from "@/src/components/PaymentTypeSection";
 import ShippingAddress from "@/src/components/ShippingAddress";
-import ShippingSection from "@/src/components/ShippingSection";
 import ReviewCartCard from "@/src/components/card/ReviewCartCard";
+import GuestForm from "@/src/components/form/GuestForm";
 import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
-import { AddressType } from "@/src/db/schema";
 import useCartStore from "@/src/hooks/use-cart";
+import { useGuestUserInfoStore } from "@/src/hooks/use-guest-user";
 import { formatCurrency, roundNumber } from "@/src/lib/utils";
+import { CustomUser } from "@/src/types";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type Props = {
-	addresses: AddressType[] | [];
+	session: CustomUser | null;
 };
 
-const CheckoutClient = ({ addresses }: Props) => {
+const CheckoutClient = ({ session }: Props) => {
 	const {
 		cartItems,
 		total,
@@ -26,28 +27,45 @@ const CheckoutClient = ({ addresses }: Props) => {
 		paymentType,
 		selectedAddress,
 	} = useCartStore();
+	const { guestUserInfo } = useGuestUserInfoStore();
 	const router = useRouter();
 
+	const [isHydrated, setIsHydrated] = useState(false);
+
 	useEffect(() => {
+		// Simulate hydration delay or use a persisted store hook
+		const timer = setTimeout(() => {
+			setIsHydrated(true);
+		}, 100); // small delay to simulate hydration completion
+
+		return () => clearTimeout(timer);
+	}, []);
+
+	// Prevent accessing checkout if cart is empty (after hydration)
+	useEffect(() => {
+		if (!isHydrated) return;
+
 		if (!cartItems || cartItems.length === 0) {
 			router.replace("/products");
 		}
-	}, [cartItems, router]);
+	}, [cartItems, router, isHydrated]);
 
 	let subTotal = roundNumber(total);
 	let grandTotal = roundNumber(totalPrice);
 
 	const handlePayNow = () => {
-		// if (!shippingFee) {
-		// 	toast.error("Select a Shipping fee");
-		// 	return;
-		// }
 		if (!paymentType) {
 			toast.error("Select a payment option");
 			return;
 		}
-		if (!selectedAddress) {
-			toast.error("Select a delivery address ");
+
+		if (!guestUserInfo && !session) {
+			toast.error("Please fill in your shipping details.");
+			return;
+		}
+
+		if (session && !selectedAddress) {
+			toast.error("Select a delivery address");
 			return;
 		}
 
@@ -58,9 +76,15 @@ const CheckoutClient = ({ addresses }: Props) => {
 		<div className="flex flex-col w-full">
 			<div className="flex flex-wrap justify-between w-full mt-4">
 				<div className="w-full md:w-1/2 px-2">
-					{/* <ShippingSection /> */}
 					<PaymentTypeSection />
-					<ShippingAddress addresses={addresses} />
+					{session ? (
+						<>
+							{/* <ShippingSection /> */}
+							<ShippingAddress />
+						</>
+					) : (
+						<GuestForm />
+					)}
 				</div>
 				<div className="w-full md:w-1/2 px-2">
 					<div className="flex flex-col h-full w-full relative">

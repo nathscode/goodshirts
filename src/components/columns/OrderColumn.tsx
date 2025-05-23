@@ -30,14 +30,28 @@ export const OrderColumns: ColumnDef<OrderWithExtra>[] = [
 	{
 		accessorKey: "customer",
 		header: "Customer",
-		cell: ({ row }) => (
-			<span>{`${row.original.user.firstName} ${row.original.user.lastName}`}</span>
-		),
+		cell: ({ row }) => {
+			// Check for registered user first, then fall back to guest user
+			const firstName =
+				row.original.user?.firstName ||
+				row.original.guestUser?.firstName ||
+				"N/A";
+			const lastName =
+				row.original.user?.lastName || row.original.guestUser?.lastName || "";
+			return <span>{`${firstName} ${lastName}`}</span>;
+		},
 	},
 	{
 		accessorKey: "phoneNumber",
 		header: "Customer Number",
-		cell: ({ row }) => <span>{`${row.original.user.phoneNumber} `}</span>,
+		cell: ({ row }) => {
+			// Check for registered user first, then fall back to guest user
+			const phoneNumber =
+				row.original.user?.phoneNumber ||
+				row.original.guestUser?.phoneNumber ||
+				"N/A";
+			return <span>{phoneNumber}</span>;
+		},
 	},
 	{
 		accessorKey: "PaymentType",

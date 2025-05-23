@@ -116,15 +116,29 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 							Shipping information
 						</h2>
 						<div className="text-sm text-gray-500">
-							<p className="text-sm capitalize text-gray-500 mt-1">
-								{`${order.address?.fullName}`}
-								<br />
-								{`${order.address?.addressLine1}, ${order.address?.city}`},{" "}
-								<br />
-								{order.address?.state} State.
-								<br />
-								{order.address?.phoneNumber}
-							</p>
+							{order.address ? (
+								<p className="text-sm capitalize text-gray-500 mt-1">
+									{`${order.address?.fullName}`}
+									<br />
+									{`${order.address?.addressLine1}, ${order.address?.city}`},{" "}
+									<br />
+									{order.address?.state} State.
+									<br />
+									{order.address?.phoneNumber}
+								</p>
+							) : (
+								<div>
+									<p className="text-sm capitalize text-gray-500 mt-1">
+										{`${order.guestUser?.firstName} ${order.guestUser?.lastName}`}
+										<br />
+										{`${order.guestUser?.streetAddress}, ${order.guestUser?.city}`}
+										, <br />
+										{order.guestUser?.state} State.
+										<br />
+										{order.guestUser?.phoneNumber}
+									</p>
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

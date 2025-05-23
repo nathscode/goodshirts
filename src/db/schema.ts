@@ -300,10 +300,33 @@ export const reviews = pgTable("reviews", {
 	updatedAt: timestamp("updated_at", { withTimezone: true }),
 });
 
+//Guest Users
+
+export const guestUsers = pgTable("guest_users", {
+	id: cuid2("id").defaultRandom().primaryKey(),
+	email: varchar("email", { length: 255 }).unique(),
+	phoneNumber: varchar("phone_number", { length: 20 }).notNull().unique(),
+	whatsappNumber: varchar("whatsapp_number", { length: 20 }),
+	firstName: varchar("first_name", { length: 100 }).notNull(),
+	lastName: varchar("last_name", { length: 100 }).notNull(),
+	state: varchar("state", { length: 100 }).notNull(),
+	lga: varchar("lga", { length: 100 }).notNull(),
+	city: varchar("city", { length: 100 }).notNull(),
+	streetAddress: text("street_address").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull(),
+});
+
 // Orders table
 export const orders = pgTable("orders", {
 	id: cuid2("id").defaultRandom().primaryKey(),
-	userId: cuid2("user_id").references(() => users.id),
+	userId: cuid2("user_id").references(() => users.id, {
+		onDelete: "set null",
+	}),
+	guestUserId: cuid2("guest_user_id").references(() => guestUsers.id, {
+		onDelete: "set null",
+	}),
 	orderNumber: varchar("order_number", { length: 10 }).notNull().unique(),
 	status: statusEnum("status").default("PENDING"),
 	total: decimal("total", { precision: 10, scale: 2 }).notNull(),
@@ -313,6 +336,7 @@ export const orders = pgTable("orders", {
 	shippingAddress: cuid2("address_id").references(() => addressTable.id, {
 		onDelete: "set null",
 	}),
+	guestShippingAddress: jsonb("guest_shipping_address"),
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),
@@ -352,9 +376,12 @@ export const payments = pgTable("payments", {
 	payable: decimal("payable", { precision: 10, scale: 2 }).notNull(),
 	processor: processorTypeEnum("processor").notNull(),
 	paymentMethod: paymentMethodEnum("payment_method").notNull(),
-	userId: cuid2("user_id")
-		.notNull()
-		.references(() => users.id, { onDelete: "cascade" }),
+	userId: cuid2("user_id").references(() => users.id, {
+		onDelete: "set null",
+	}),
+	guestUserId: cuid2("guest_user_id").references(() => guestUsers.id, {
+		onDelete: "set null",
+	}),
 	orderId: cuid2("order_id")
 		.notNull()
 		.references(() => orders.id, { onDelete: "cascade" }),
@@ -498,6 +525,10 @@ export const productVariantPricesRelations = relations(
 
 export const orderRelations = relations(orders, ({ many, one }) => ({
 	user: one(users, { fields: [orders.userId], references: [users.id] }),
+	guestUser: one(guestUsers, {
+		fields: [orders.guestUserId],
+		references: [guestUsers.id],
+	}),
 	address: one(addressTable, {
 		fields: [orders.shippingAddress],
 		references: [addressTable.id],
@@ -559,6 +590,7 @@ export const mediasRelations = relations(medias, ({ one }) => ({
 }));
 
 export type Users = typeof users.$inferSelect;
+export type SafeGuestUser = typeof guestUsers.$inferSelect;
 export type SafeUser = Omit<Users, "passwordHash">;
 export type AddressType = typeof addressTable.$inferSelect;
 export type ProductType = typeof products.$inferSelect;
@@ -628,6 +660,7 @@ export type OrderItemWithExtra = OrderItemType & {
 
 export type OrderWithExtra = OrderType & {
 	user: SafeUser;
+	guestUser: SafeGuestUser;
 	address: AddressType;
 	items: OrderItemWithExtra[];
 };

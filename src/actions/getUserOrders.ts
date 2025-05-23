@@ -55,12 +55,12 @@ export async function getDashboardOrders(): Promise<OrderWithExtra[] | []> {
 		throw Error("Unauthenticated User.. You can't access this data");
 	}
 
-	
 	try {
 		const userOrders = await db.query.orders.findMany({
 			with: {
 				user: true,
 				address: true,
+				guestUser: true,
 				items: {
 					with: {
 						product: {
