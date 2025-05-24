@@ -12,7 +12,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/src/components/ui/table";
-import { formatCurrency } from "@/src/lib/utils";
+import { formatCurrency, formatDateTime } from "@/src/lib/utils";
 import Link from "next/link";
 
 interface IParams {
@@ -46,6 +46,7 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 									<TableHead>Variant</TableHead>
 									<TableHead>Qty</TableHead>
 									<TableHead>Amount</TableHead>
+									<TableHead>Created</TableHead>
 									<TableHead>Status</TableHead>
 									<TableHead>Update</TableHead>
 									<TableHead className="text-right">Action</TableHead>
@@ -69,6 +70,9 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 													)}
 										</TableCell>
 										<TableCell>
+											<span>{formatDateTime(item.createdAt)}</span>
+										</TableCell>
+										<TableCell>
 											<Badge text={item.status!} status={item.status} />
 										</TableCell>
 										<TableCell>
@@ -87,6 +91,10 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 							</TableBody>
 						</Table>
 						<ul className="flex flex-col w-full sm:w-1/3 my-5">
+							<li className="inline-flex items-center justify-between w-full text-base py-1">
+								<span className="text-zinc-500">Ordered On</span>
+								<span>{formatDateTime(order.createdAt)}</span>
+							</li>
 							<li className="inline-flex items-center justify-between w-full text-base py-1">
 								<span className="text-zinc-500">Subtotal</span>
 								<span>{formatCurrency(order.total.toString())}</span>

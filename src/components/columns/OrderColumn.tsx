@@ -1,7 +1,7 @@
 "use client";
 
 import { OrderWithExtra } from "@/src/db/schema";
-import { formatCurrency } from "@/src/lib/utils";
+import { formatCurrency, formatDateTime } from "@/src/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import Badge from "../common/Badge";
@@ -71,6 +71,11 @@ export const OrderColumns: ColumnDef<OrderWithExtra>[] = [
 		cell: ({ row }) => (
 			<Badge status={row.original.status} text={row.original.status!} />
 		),
+	},
+	{
+		accessorKey: "created",
+		header: "Created",
+		cell: ({ row }) => <span>{formatDateTime(row.original.createdAt)}</span>,
 	},
 	{
 		id: "actions",
