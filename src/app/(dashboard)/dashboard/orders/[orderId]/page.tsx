@@ -3,6 +3,7 @@ import NotFound from "@/src/app/not-found";
 import BackButton from "@/src/components/common/BackButton";
 import Badge from "@/src/components/common/Badge";
 import OrderUpdate from "@/src/components/form/OrderStatusForm";
+import { ImageSheet } from "@/src/components/modal/ImageSheet";
 import { Separator } from "@/src/components/ui/separator";
 import {
 	Table,
@@ -42,6 +43,7 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 						<Table>
 							<TableHeader>
 								<TableRow>
+									<TableHead className="">Image</TableHead>
 									<TableHead className="w-1/5">Name</TableHead>
 									<TableHead>Variant</TableHead>
 									<TableHead>Qty</TableHead>
@@ -55,6 +57,12 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 							<TableBody>
 								{order.items.map((item) => (
 									<TableRow>
+										<TableCell>
+											<ImageSheet
+												imageSrc={item.product.medias[0]?.url}
+												slug={item.product.slug}
+											/>
+										</TableCell>
 										<TableCell className="font-medium capitalize whitespace-nowrap">
 											{item.product.name}
 										</TableCell>
@@ -70,7 +78,9 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 													)}
 										</TableCell>
 										<TableCell>
-											<span>{formatDateTime(item.createdAt)}</span>
+											<span className="whitespace-nowrap">
+												{formatDateTime(item.createdAt)}
+											</span>
 										</TableCell>
 										<TableCell>
 											<Badge text={item.status!} status={item.status} />
@@ -135,17 +145,20 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 									{order.address?.phoneNumber}
 								</p>
 							) : (
-								<div>
-									<p className="text-sm capitalize text-gray-500 mt-1">
-										{`${order.guestUser?.firstName} ${order.guestUser?.lastName}`}
-										<br />
-										{`${order.guestUser?.streetAddress}, ${order.guestUser?.city}`}
-										, <br />
-										{order.guestUser?.state} State.
-										<br />
-										{order.guestUser?.phoneNumber}
-									</p>
-								</div>
+								order.guestUser &&
+								order.guestUser?.streetAddress && (
+									<div>
+										<p className="text-sm capitalize text-gray-500 mt-1">
+											{`${order.guestUser?.firstName} ${order.guestUser?.lastName}`}
+											<br />
+											{`${order.guestUser?.streetAddress}, ${order.guestUser?.city}`}
+											, <br />
+											{order.guestUser?.state} State.
+											<br />
+											{order.guestUser?.phoneNumber}
+										</p>
+									</div>
+								)
 							)}
 						</div>
 					</div>
