@@ -21,7 +21,7 @@ export function ImageSheet({ imageSrc, slug }: Props) {
 		<div className="grid grid-cols-2 gap-2">
 			<Sheet>
 				<SheetTrigger asChild className="hover:cursor-pointer">
-					<Button variant="ghost" className="hidden md:inline-flex">
+					<Button variant="ghost">
 						<UserAvatar image={imageSrc} />
 					</Button>
 				</SheetTrigger>

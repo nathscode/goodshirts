@@ -8,7 +8,7 @@ const OrderPage = async (props: Props) => {
 	const orders = await getDashboardOrders();
 	return (
 		<div className="flex flex-col w-full bg-white">
-			<div className="px-10 py-5">
+			<div className="px-5 sm:px-10 py-5">
 				<div className="flex items-center justify-between">
 					<p className="text-heading2-bold">Orders {orders.length}</p>
 				</div>

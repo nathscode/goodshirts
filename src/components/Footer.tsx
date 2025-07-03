@@ -38,7 +38,7 @@ const Footer = () => {
 											</svg>
 										</Link>
 										<Link
-											href="https://api.whatsapp.com//send?phone=+2349133359536&text=Thanks%20for%20contacting%20us,%20What%20are%20you%20ordering%20from%20us"
+											href="https://api.whatsapp.com//send?phone=+2347062486166&text=Thanks%20for%20contacting%20us,%20What%20are%20you%20ordering%20from%20us"
 											title="Contact us on whatsapp"
 											className="text-gray-500 transition-colors duration-300"
 										>

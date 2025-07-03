@@ -26,7 +26,7 @@ const OrdersDetails = async ({ params }: { params: IParams }) => {
 	if (!order) return <NotFound />;
 	return (
 		<div className="flex flex-col w-full bg-white">
-			<div className="px-10 py-5">
+			<div className="px-5 sm:px-10 py-5">
 				<div className="flex items-center justify-start">
 					<div className="flex flex-col justify-start w-fit">
 						<BackButton />
