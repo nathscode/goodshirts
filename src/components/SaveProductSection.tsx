@@ -92,13 +92,13 @@ const SaveProductSection = ({
 		<div
 			onClick={() => !isPending && mutate()}
 			className={cn(
-				"flex flex-col items-center justify-center shrink-0 size-10 p-2 rounded-full cursor-pointer transition-all",
+				"flex flex-col items-center justify-center shrink-0 size-8 hover:bg-red-100 p-2 rounded-full cursor-pointer transition-all",
 				isSaved || initialState.isSavedByUser ? "bg-red-100" : "bg-slate-100"
 			)}
 		>
 			<Heart
 				className={cn(
-					"size-5 transition-all",
+					"size-4 transition-all",
 					isSaved || initialState.isSavedByUser
 						? "fill-red-500 text-red-500"
 						: "text-gray-500"
