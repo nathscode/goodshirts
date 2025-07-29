@@ -34,7 +34,7 @@ const DeleteItem: React.FC<DeleteProps> = ({ item, slug }) => {
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: async () => {
-			const { data } = await axios.delete(`${baseURL}/${itemType}/${slug}`); // Ensure the URL is correct
+			const { data } = await axios.delete(`${baseURL}/${itemType}/${slug}`);
 			return data;
 		},
 		onSuccess: (data) => {

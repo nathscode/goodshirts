@@ -1,6 +1,7 @@
 "use server";
 import {
 	CollectionWithExtra,
+	ProductWithExtra,
 	ProductWithMedia,
 	collections,
 	products,
@@ -46,14 +47,31 @@ export async function getAllCollections(): Promise<CollectionWithExtra[] | []> {
 }
 
 export async function getAllCollectionProducts(): Promise<
-	ProductWithMedia[] | []
+	ProductWithExtra[] | []
 > {
 	try {
 		const allProducts = await db.query.products.findMany({
 			where: eq(products.isActive, true),
 			orderBy: [desc(products.createdAt)],
 			with: {
+				category: true,
+				subCategory: true,
+				variants: {
+					with: {
+						variantPrices: true,
+					},
+				},
 				medias: true,
+				reviews: {
+					with: {
+						user: true,
+					},
+				},
+				saved: {
+					with: {
+						user: true,
+					},
+				},
 			},
 		});
 

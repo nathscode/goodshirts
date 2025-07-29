@@ -36,11 +36,11 @@ export function CollectionActionRow<TData>({
 			<DropdownMenuContent align="end" className="w-[160px]">
 				<DropdownMenuItem>
 					{/* @ts-ignore */}
-					<Link href={`/dashboard/collections/${row.original.slug}`}>View</Link>
+					<Link href={`/collections/${row.original.slug}`}>View</Link>
 				</DropdownMenuItem>
 				<DropdownMenuItem>
 					{/* @ts-ignore */}
-					<Link href={`/dashboard/products/${row.original.slug}/edit`}>
+					<Link href={`/dashboard/collections/${row.original.slug}/edit`}>
 						{" "}
 						Edit
 					</Link>

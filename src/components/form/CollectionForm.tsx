@@ -14,7 +14,11 @@ import {
 	PopoverTrigger,
 } from "@/src/components/ui/popover";
 import { Textarea } from "@/src/components/ui/textarea";
-import { CollectionType, ProductWithMedia } from "@/src/db/schema";
+import {
+	CollectionType,
+	ProductWithExtra,
+	ProductWithMedia,
+} from "@/src/db/schema";
 import { baseURL } from "@/src/lib/constants";
 import { cn, compressImage } from "@/src/lib/utils";
 import {
@@ -42,10 +46,15 @@ import { Label } from "../ui/label";
 
 interface CollectionFormProps {
 	initialData?: CollectionType | null;
-	products: ProductWithMedia[];
+	products: ProductWithExtra[];
+	existingProductIds?: string[];
 }
 
-const CollectionForm = ({ initialData, products }: CollectionFormProps) => {
+const CollectionForm = ({
+	initialData,
+	products,
+	existingProductIds = [],
+}: CollectionFormProps) => {
 	const router = useRouter();
 	const [image, setImage] = useState<File>();
 
@@ -80,7 +89,7 @@ const CollectionForm = ({ initialData, products }: CollectionFormProps) => {
 					endDate: initialData.endDate
 						? new Date(initialData.endDate).toISOString().split("T")[0]
 						: "",
-					productIds: [],
+					productIds: existingProductIds,
 				}
 			: {
 					name: "",
@@ -105,7 +114,11 @@ const CollectionForm = ({ initialData, products }: CollectionFormProps) => {
 			if (data && data.status === "success") {
 				router.push(`/dashboard/collections`);
 				form.reset();
-				toast.success("Collection created successfully");
+				toast.success(
+					initialData?.slug
+						? "Collection created successfully"
+						: "Collection updated successfully"
+				);
 			} else {
 				console.error("Unexpected response structure:", data);
 				toast.error("Unexpected response from server");
@@ -331,6 +344,16 @@ const CollectionForm = ({ initialData, products }: CollectionFormProps) => {
 					</div>
 					<div className="flex flex-col">
 						<Label className="mb-4">Product Image</Label>
+						{initialData?.image && (
+							<div className="relative shrink-0 w-[70px] h-[70px] sm:w-[100px] sm:h-[100px] overflow-hidden bg-slate-300 rounded-md my-4">
+								<Image
+									className="object-cover w-full h-full rounded-md"
+									src={initialData.image}
+									alt="order"
+									fill
+								/>
+							</div>
+						)}
 						<div
 							{...getRootProps()}
 							className={`border-2 border-dashed rounded-lg p-4 ${

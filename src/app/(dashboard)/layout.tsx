@@ -36,5 +36,4 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 		</div>
 	);
 };
-
 export default DashboardLayout;
